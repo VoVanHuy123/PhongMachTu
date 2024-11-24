@@ -1,0 +1,96 @@
+{% extends "layout/base.html" %}
+{% block content %}
+<section >
+    <div class="container py-5">
+      {% for doctor in doctors %}
+      <div class="row justify-content-center mb-3">
+        <div class="col-md-12 col-xl-10">
+          <div class="card shadow-0 border rounded-3">
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-12 col-lg-3 col-xl-3 mb-4 mb-lg-0">
+                  <div class="bg-image hover-zoom ripple rounded ripple-surface">
+                    <img src="{{url_for('static', filename='img/' + doctor.image)}}"
+                      class="w-100" />
+                    <a href="#!">
+                      <div class="hover-overlay">
+                        <div class="mask" style="background-color: rgba(253, 253, 253, 0.15);"></div>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+                <div class="col-md-6 col-lg-6 col-xl-6">
+                  <h5>{{doctor.last_name}} {{doctor.first_name}}</h5>
+                  <div class="d-flex flex-row">
+                  
+                    <span>Chuyên Khoa {{doctor.specialty}}</span>
+                  </div>
+                  <div class="mt-1 mb-0 text-muted small">
+                    <p></p>
+                  </div>
+                  <div class="mb-2 text-muted small">
+                   
+                  </div>
+                  <p class="text-truncate mb-4 mb-md-0">
+                    {{doctor.experience}}
+                  </p>
+                </div>
+                <div class="col-md-6 col-lg-3 col-xl-3 border-sm-start-none border-start">
+                  {% if false %} 
+                  <div class="d-flex flex-row align-items-center mb-1">
+                    <h4 class="mb-1 me-1">$13.99</h4>
+                    <span class="text-danger"><s>$20.99</s></span>
+                  </div>
+                  <h6 class="text-success">Free shipping</h6> 
+                   {% endif %}
+                  <div class="d-flex flex-column mt-4">
+
+                    <form method="POST" action="{{ url_for('appointment.doctor_detail') }}">
+                      <input type="hidden" name="doctor_id" value="{{doctor.id}}" />
+                      <button type = "submit"  data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-sm d-flex align-items-center justify-content-center" >
+                        <span>Detail</span>
+                      </button>
+                    </form>
+                      <form method="POST" action="{{ url_for('appointment.book') }}">
+                        <input type="hidden" name="doctor_id" value="{{doctor.id}}" />
+                        <button type = "submit" data-mdb-button-init data-mdb-ripple-init class="btn btn-outline-primary btn-sm mt-2" >
+                          Book Appointment
+                        </button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+       {% endfor %}
+
+       <ul class="pagination d-flex justify-content-center flex-wrap pagination-rounded-flat pagination-success">
+        <!-- Trang trước -->
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('appointment.appointment_main', page=prev_page) }}" data-abc="true">
+              <i class="bi bi-arrow-left-circle-fill"></i>
+            </a>
+        </li>
+    
+        <!-- Các số trang -->
+        {% for p in range(1, total_pages + 1) %}
+            <li class="page-item {% if p == current_page %}active{% endif %}">
+                <a class="page-link" href="{{ url_for('appointment.appointment_main', page=p) }}" data-abc="true">
+                    {{ p }}
+                </a>
+            </li>
+        {% endfor %}
+    
+        <!-- Trang kế tiếp -->
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('appointment.appointment_main', page=next_page) }}" data-abc="true">
+              <i class="bi bi-arrow-right-circle-fill"></i>
+            </a>
+        </li>
+    </ul>
+    </div>
+  </section>
+
+{%endblock%}

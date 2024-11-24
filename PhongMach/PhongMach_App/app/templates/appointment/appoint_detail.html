@@ -1,0 +1,122 @@
+{% extends "layout/base.html" %}
+{% block content %}
+<div class="container mt-5 bootstrap snippets bootdey">
+    <div class="row ng-scope">
+        <div class="col-md-4">
+            <div class="panel panel-default">
+                <div class="panel-body text-center">
+                    <div class="pv-lg"><img class="center-block img-responsive img-circle img-thumbnail thumb96" src="{{ url_for('static', filename='img/' +  doctor.image) }}" alt="Contact"></div>
+                    <h3 class="m0 text-bold">{{doctor.last_name}} {{doctor.first_name}}</h3>
+
+                    <div class="mv-lg row">
+                      <div class="col-sm-6">
+                        <strong>Chuyên khoa: </i></strong>
+                      </div>
+                      <div class="col-sm-6">
+                        <p>{{doctor.specialty}}</p>
+                      </div>
+                    </div>
+                    
+                    <div class="mv-lg row">
+                      <div class="col-sm-6">
+                        <strong>Nơi Làm việc hiện tại: </i></strong>
+                      </div>
+                      <div class="col-sm-6">
+                        <p>{{doctor.current_workplace}}</p>
+                      </div>
+                    </div>
+                    
+                </div>
+            </div>
+            <div class="panel panel-default hidden-xs hidden-sm">
+                <div class="panel-heading">
+                    <div class="panel-title text-center">lịch Khám</div>
+                </div>
+                <div class="panel-body container d-flex flex-column justify-content-center align-items-center">
+                    <div class="media">
+                      <i class="bi bi-calendar-week"></i>
+                      <span class="pl-lg-2">
+                        {{exam_time.start_time.strftime("%H:%M")}}-{{exam_time.end_time.strftime("%H:%M")}} - {{exam_day.strftime('%d/%m/%Y')}}
+                      </span>
+                    </div>
+                    <div class="media">
+                      <i class="bi bi-geo-alt-fill"></i>
+                      <span class="pl-lg-2">
+                        dịa chỉ
+                      </span>
+                    </div>
+                    
+                    
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    
+                    <div class="h4 text-center">Contact Information</div>
+                    <div class="row pv-lg">
+                        
+                    </div>
+                    <div class="">
+                        <div class="card mb-3">
+                          <div class="card-body">
+                            <div class="row">
+                              <div class="col-sm-3">
+                                <h6 class="mb-0">Full Name</h6>
+                              </div>
+                              <div class="col-sm-9 text-secondary">
+                                {{current_user.user.first_name}} {{current_user.user.last_name}}
+                              </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                              <div class="col-sm-3">
+                                <h6 class="mb-0">Email</h6>
+                              </div>
+                              <div class="col-sm-9 text-secondary">
+                                {{current_user.user.email}}
+                              </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                              <div class="col-sm-3">
+                                <h6 class="mb-0">Phone</h6>
+                              </div>
+                              <div class="col-sm-9 text-secondary">
+                                {% if current_user.user.phone_numbers and current_user.user.phone_numbers|length > 0  %}
+                                {%for number in current_user.user.phone_numbers%}
+                                    {{number.number}}
+                                {%endfor%}
+                                {% else %}
+                                No phone number available
+                                {% endif %}
+                              </div>
+                            </div>
+                            <hr>
+                            <form class="mb-5" method="post" action = "{{url_for('appointment.confirm_appoint')}}">
+                                <div class="row">
+                                  
+                                  <div class="col-md-12 form-group mb-3">
+                                    <label for="symptom" class="col-form-label">Triệu chứng</label>
+                                    <input type="text" class="form-control" name="symptom" id="symptom">
+                                  </div>
+                                </div>
+                                <input type="hidden" id="doctor_id" name="doctor_id" value="{{ doctor.id }}">
+                                <input type="hidden" id="exam_time_id" name="exam_time_id" value="{{ exam_time.id}}">
+                                <input type="hidden" id="exam_day" name="exam_day" value="{{exam_day}}">
+                                <div class="form-group">
+                                    <div class="col-sm-offset-2 col-sm-10">
+                                        <button class="btn btn-info" type="submit">Đăng ký</button>
+                                    </div>
+                                </div>
+                                
+                            </form>
+               
+                
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+{% endblock content %}
