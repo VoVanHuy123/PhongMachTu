@@ -1,0 +1,126 @@
+{% extends "layout/base.html" %}
+
+
+{% block content%}
+   <div class="">
+    <div class="container mt-4 border p-4 m-3">
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <input type = "hidden" id = "patient-id" name = "patient-id" value = "{{patient.id}}">
+            <input type = "hidden" id = "exam-registration-id" name = "exam_registration_id" value = "{{exam_registration_id}}">
+            <label for="patientName" class="form-label">Họ tên:</label>
+            <span id="patientName">{{ patient.first_name }} {{ patient.last_name }} -- {{exam_registration_id}}</span>
+          </div>
+          <div class="col-md-6">
+            <label for="examDate" class="form-label">Ngày khám:</label>
+            <span  id="examDate" class="">{{exam_dayy.strftime('%d/%m/%Y')}}</span>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="diagnosis" class="form-label">Chuẩn đoán:</label>
+          <textarea id="diagnosis" rows="4" class="form-control" placeholder="Nhập chuẩn đoán"></textarea>
+        </div>
+        <table class="table table-bordered text-center">
+          <thead>
+            <tr>
+              <th scope="col">STT</th>
+              <th scope="col">Tên thuốc</th>
+              <th scope="col">Đơn vị</th>
+              <th scope="col">Số lượng</th>
+              <th scope="col">Cách dùng</th>
+              <th scope="col">Hành động</th>
+            </tr>
+          </thead>
+          <tbody id = "table-body-med-list">
+            
+          </tbody>
+        </table>
+        <div class="text-center">
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addMedicineModal">
+                <i class="bi bi-plus"></i> Thêm thuốc
+              </button>
+        </div>
+        <div class="text-center">
+            <button id = "confirm-medical-exam" class="btn btn-success " >
+                <i class="bi bi-plus"></i> xác nhận
+              </button>
+        </div>
+      </div>
+   </div>
+
+
+
+
+
+   
+   <!-- Modal chọn thuốc -->
+<div class="modal fade" id="addMedicineModal" tabindex="-1" aria-labelledby="addMedicineModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg add-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addMedicineModalLabel">Chọn thuốc</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <div class="row">
+              <!-- Form nhập thông tin thuốc -->
+              <div class="col-md-8">
+                <div class="mb-3">
+                  <label for="medicineName" class="form-label">Tên thuốc:</label>
+                  <input type="text" id="medicineName" class="form-control" placeholder="Nhập tên thuốc">
+                </div>
+                <div class="mb-3">
+                  <label for="medicineUnit" class="form-label">Đơn vị:</label>
+                  <select id="medicineUnit" class="form-select">
+                    <option value="" disabled selected>Chọn 
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label for="medicineQuantity" class="form-label">Số lượng:</label>
+                  <input type="number" id="medicineQuantity" class="form-control" value="" min="1">
+                </div>
+                <div class="mb-3">
+                  <label for="medicineUsage" class="form-label">Cách sử dụng:</label>
+                  <textarea id="medicineUsage" class="form-control" rows="4" placeholder="Nhập cách sử dụng"></textarea>
+                </div>
+              </div>
+    
+              <!-- Danh sách tìm kiếm thuốc -->
+              <div class="col-md-4 border container">
+                <div class="mb-3">
+                  <label for="searchMedicine" class="form-label">Tìm kiếm tên thuốc:</label>
+                  <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" id="searchMedicine" class="form-control" placeholder="Nhập tên thuốc cần tìm">
+                  </div>
+                </div>
+                <div class="mb-3 row">
+                    <div class="col-lg-5">
+                        <label for="medicineSelect" class="form-label">Danh mục thuốc:</label>
+                    </div>
+                    <div class="col-lg-7    ">
+                      <select id="medicineSelect" class="form-select">
+                        <option value="" selected>Tất cả danh mục</option>
+                        {% for category in medicine_categories %}
+                        <option value="{{ category.id }}">{{ category.name }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                </div>
+                <div class="medicine-list-group list-group border container p-2" style="max-height: 200px; overflow-y: auto;">
+                    {% for medicine in medicine_list%}
+                  <button type="button" class="list-group-item list-group-item-action" onclick = "selectMedicine({{medicine}});">{{ medicine.name }}</button>
+                  {% endfor %}
+                  <!-- Thêm các lựa chọn thuốc -->
+                </div>
+              </div>
+            </div>
+          </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+          <button type="button" id="confirmAddMedicine" class="btn btn-primary">Thêm</button>
+        </div>
+      </div>
+    </div>
+  </div>
+{%endblock%}

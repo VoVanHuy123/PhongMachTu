@@ -1,0 +1,163 @@
+{% extends "layout/base.html" %}
+
+
+{% block content%}
+
+<div class="doctor_main mb-5">
+    <div class="container mt-4">
+        <!-- Date Section -->
+        <div class="row mb-3">
+            <div class="col">
+                <form method = "post" action = "{{url_for('doctor_user.doctor_user_run')}}" id="date-form">
+    
+    
+                    <input type="hidden" id="exam_day" name="exam_day" value="{{ selected_day or today.date() }}"> 
+    
+                        <div class="schedule-section">
+                            <label for="date-dropdown" class="me-2">Chọn ngày:</label>
+                            <select id="date-dropdown" class="form-select mb-3" name="exam_day" onchange ="updateExamDayAndSubmit(this.value)">
+                                {% for date in available_days%}
+                                <option value="{{date}}" {% if date == selected_day %}selected{% endif %}>
+                                    {{date.strftime('%d/%m/%Y')}}
+                                </option>
+                                {%endfor%}
+                                    
+                                </select>
+                        </div>
+                    
+    
+                </form>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="row">
+            <!-- Left Section: Appointment List -->
+            <div class="col-md-8">
+                <div class="table-responsive">
+                    <table class="table table-bordered text-center">
+                        <thead class="table-secondary">
+                            <tr>
+                                <th>Giờ khám</th>
+                                <th>Tên bệnh nhân</th>
+                                <th>Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for exam_schedule in exam_schedules%}
+                            <tr {% if exam_schedule.is_waiting %}
+                                class = "row-hover" 
+                                onclick="fillPatientInfo(this)"
+                                {% endif %}
+
+                                data-first-name="{{ exam_schedule.first_name }}" 
+                                data-last-name="{{ exam_schedule.last_name }}" 
+                                data-gender="{{ exam_schedule.gender }}" 
+                                data-birth-day="{{ exam_schedule.birth_day }}" 
+                                data-email="{{ exam_schedule.email }}" 
+                                data-symptom="{{ exam_schedule.symptom }}"
+                                data-image="{{ exam_schedule.image }}"
+                                data-phone = "{{ exam_schedule.number}}"
+                                data-patient-id ="{{exam_schedule.patient_id}}"
+                                data-date ="{{exam_schedule.date}}",
+                                data-exam-registration-id = "{{exam_schedule.exam_registration_id}}">
+
+                                <td>{{exam_schedule.start_time.strftime('%H:%M')}} - {{exam_schedule.end_time.strftime('%H:%M')}}</td>
+                                <td>{{exam_schedule.first_name}} {{exam_schedule.last_name}}</td>
+                                <td>{% if exam_schedule.is_waiting == True %}
+                                    Đang chờ 
+                                    
+                                    {%else%}
+                                    hoàn thành
+                                    {% endif %}
+                                </td>
+                            </tr>
+                             {% endfor %}
+                            <tr class = "row-hover">
+                                <td>09:00</td>
+                                <td>Trần Thị B</td>
+                                <td>Hoàn thành</td>
+                            </tr>
+                            <tr class = "row-hover">
+                                <td>10:00</td>
+                                <td>Phạm Văn C</td>
+                                <td>Đang chờ</td>
+                            </tr>
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Right Section: Patient Info -->
+            <div class="col-md-4">
+                <div class="card p-3">
+                    <div class="row">
+<!-- https://via.placeholder.com/100 -->
+                        <div class="text-center mb-3 col-3 d-flex justify-content-center align-items-center">
+                            <img id ="image" src ="https://via.placeholder.com/100" alt="Avatar" class="img-fluid rounded-circle">
+                        </div>
+                        <div class="col-9">
+                            <div class="row mb-2">
+                                <div class="col-4 ">
+                                    <span id >Họ tên</span>
+                                    
+                                </div>
+                                <div class="col-8 ">
+                                    <span id = "patient-name">Vox van huy</span>
+                                    
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-4 ">
+                                    <span>Giới tính</span>
+                                    
+                                </div>
+                                <div class="col-8 ">
+                                    <span id = "patient-gender">Vox van huy</span>
+                                    
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-4 ">
+                                    <span >Ngày sinh</span>
+                                    
+                                </div>
+                                <div class="col-8 ">
+                                    <span id = "patient-birth-day">Vox van huy</span>
+                                    
+                                </div>
+                            </div>
+                           
+                            
+                        </div>
+                        
+                    </div>
+                        <div class="mb-2">
+                            <label for="phone" class="form-label">Số điện thoại</label>
+                            <input type="text" class="form-control" id="phone" placeholder="Nhập số điện thoại">
+                        </div>
+                        <div class="mb-2">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" placeholder="Nhập email">
+                        </div>
+                        <div class="mb-3">
+                            <label for="symptoms" class="form-label">Triệu chứng</label>
+                            <textarea class="form-control" id="symptoms" rows="3" placeholder="Mô tả triệu chứng"></textarea>
+                        </div>
+                        <form method = "post" action ="{{url_for('doctor_user.create_medical')}}">
+                            <input type="hidden" class="form-control" id="patient-id" name ="patient_id" value = "">
+                            <input type="hidden" class="form-control" id="exam-dayy" name ="exam_dayy" value = "">
+                            <input type="hidden" class="form-control" id="exam-registration-id" name ="exam_registration_id" value = "">
+                            <div class="d-grid gap-2">
+                                <button  type="submit" class="btn btn-primary">Lập phiếu khám</a>
+                                <button type="button" class="btn btn-secondary">Lịch sử khám</button>
+                            </div>
+                        </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

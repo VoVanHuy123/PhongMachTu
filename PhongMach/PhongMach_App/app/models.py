@@ -9,13 +9,14 @@ from sqlalchemy.orm import relationship, backref
 from sqlalchemy import Column, Integer, Float, String, Boolean, ForeignKey, Date, DateTime,Time
 from datetime import date, time, datetime
 from flask_login import UserMixin
+from flask_admin.contrib.sqla import ModelView
 
 
 
 class Account(db.Model, UserMixin):
-    id = Column(db.Integer, primary_key=True)
+    id = Column(Integer, primary_key=True)
     user_name = Column(db.String(50), nullable=False, unique=True)
-    password = Column(String(50), nullable=False, unique=True)
+    password = Column(String(50), nullable=False)
     create_day = Column(Date, default=date.today)
     active = Column(Boolean, default=True)
     user = relationship("User", backref="account", uselist=False)  # Thiết lập quan hệ 1-1
@@ -32,19 +33,13 @@ class User(db.Model):
     birth_day = Column(Date)
     email = Column(String(50), unique=True, nullable=False)
     image = Column(String(255), nullable=True)
-
-    phone_numbers = relationship(
-        'PhoneNumber',
-        backref='user',
-        cascade='all, delete-orphan',  
-        lazy=True
-    )
+    phone_numbers = relationship('PhoneNumber',backref='user',  lazy=True)
     
     account_id = Column(Integer, ForeignKey('account.id', ondelete='CASCADE'), nullable=False, unique=True)
-    role = Column(String(50), nullable=False, default="user")  # Thêm trường role
+    role = Column(String(50), nullable=False, default="user")  
     __mapper_args__ = {
-        'polymorphic_identity': 'user',  # Loại mặc định
-        'polymorphic_on': role          # Dựa vào `role` để phân biệt vai trò
+        'polymorphic_identity': 'user',  
+        'polymorphic_on': role          
     }
     
 
@@ -97,11 +92,12 @@ class ExamTime(db.Model):
     exam_dates = db.relationship('ExamSchedule', backref='exam_time', lazy = True)
 
 class ExamSchedule(db.Model):
-    exam_time_id = Column(Integer, ForeignKey('exam_time.id'), nullable=False, primary_key = True)
-    doctor_id = Column(Integer, ForeignKey('doctor.id'), nullable=False, primary_key = True)
-    date = Column(Date, nullable=False, primary_key = True)
-    is_free = Column(Boolean, nullable=False, default=True)
-    exam_registration_id = Column(Integer, ForeignKey('exam_registration.id', ondelete='CASCADE'), nullable = False, unique=True)
+    exam_time_id = Column(Integer, ForeignKey('exam_time.id'), nullable=False,primary_key=True)
+    doctor_id = Column(Integer, ForeignKey('doctor.id'), nullable=False,primary_key=True)
+    date = Column(Date, nullable=False,primary_key=True)
+    is_book = Column(Boolean, nullable=False, default=True)
+    exam_registration_id = Column(Integer, ForeignKey('exam_registration.id', ondelete='CASCADE'), nullable=False,unique=True)
+
 
 class ExamRegistration(db.Model): 
     id = Column(Integer, primary_key=True, )
@@ -109,6 +105,9 @@ class ExamRegistration(db.Model):
     exam_schedule = relationship("ExamSchedule", backref="exam_registration", uselist=False)
     patient_id = Column(Integer, ForeignKey('patient.id'),nullable = False)
     doctor_id = Column(Integer, ForeignKey('doctor.id'),nullable = False)
+    is_waiting = Column(Boolean, default=True)
+    doctor = relationship("Doctor", backref="exam_registrations")
+    patient = relationship("Patient", backref="exam_registrations") 
 
 class MedicalExam(db.Model):
     id = Column(Integer, primary_key=True)
@@ -116,7 +115,9 @@ class MedicalExam(db.Model):
     exam_day = Column(Date, default=date.today)
     medicines = relationship("DetailExam",backref="medical_exam", lazy = True)
     patient_id = Column(Integer, ForeignKey('patient.id'),nullable = False)
+    patient = relationship("Patient", backref="medical_exams")
     doctor_id = Column(Integer, ForeignKey('doctor.id'),nullable = False)
+    doctor = relationship("Doctor", backref="medical_exams")
 
 class DetailExam(db.Model): 
     medical_exam_id = Column(Integer, ForeignKey('medical_exam.id'),primary_key=True, nullable=False)
@@ -159,4 +160,6 @@ class Medicine(db.Model):
     medical_exams = relationship("DetailExam", backref="medicine", lazy=True)
     categories = relationship("Category", secondary=med_category, lazy="subquery", backref=backref('medicine', lazy=True))
     units = relationship("MedicineUnit", secondary=med_unit, lazy="subquery", backref=backref('medicine', lazy=True))
+
+
 

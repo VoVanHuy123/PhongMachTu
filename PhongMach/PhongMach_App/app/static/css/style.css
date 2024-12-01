@@ -244,6 +244,19 @@ button.btn-primary {
   margin-right: 10px;
 }
 /*=============================================mansfasaa=*/
+/* modal add med  ==========================================*/
+.row-hover:hover{
+  --bs-table-bg: #888;
+}
+.add-modal{
+  --bs-modal-width: 1230px !important;
+}
+/*==========================================*/
+/*add med page======================================*/
+.btn-med{
+  height: auto !important;
+}
+/*==========================================*/
 h1, h2, h3, h4, h5, h6,
 .h1, .h2, .h3, .h4, .h5, .h6 {
   font-family: "Poppins", sans-serif;

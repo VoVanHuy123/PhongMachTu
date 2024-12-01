@@ -1,0 +1,244 @@
+{% extends "layout/base.html" %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/user_page.css') }}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/user.js') }}"></script>
+{% endblock %}
+
+{% block content%}
+
+    <div class="container-fluid text-center">    
+        <div class="container m-4">
+            
+            <div class="row">
+                <div class="col-lg-3 ">
+                    <div class="card left-profile-card">
+                        <div id = "user-informations" class="card-body ">
+                            <div class="text-center">
+                                <img src="{{current_user.user.image}}" alt="" class="user-profile">
+                                <h3>{{current_user.user.first_name}} {{current_user.user.last_name}}</h3>
+                                <p>{{current_user.user.gender}}</p>
+                                <p>{{current_user.user.birth_day}}</p>
+                                <div class="d-flex align-items-center justify-content-center mb-3">
+                                    <i class="fas fa-star text-info"></i>
+                                    <i class="fas fa-star text-info"></i>
+                                    <i class="fas fa-star text-info"></i>
+                                    <i class="fas fa-star text-info"></i>
+                                    <i class="fas fa-star text-info"></i>
+                                </div>
+                            </div>
+                            <div class="personal-info container">
+                                <h3>Personal Information</h3>
+                                <ul class="personal-list">
+                                    <!-- Email -->
+                                    <li class="row align-items-center mb-3">
+                                        <div class="col-2 text-center">
+                                            <i class="bi bi-envelope-at"></i>
+                                        </div>
+                                        <div class="col-10 text-start">
+                                            {{ current_user.user.email }}
+                                        </div>
+                                    </li>
+                                    <!-- Phone -->
+                                    <li class="row align-items-center">
+                                        <div class="col-2 text-center">
+                                            <i class="bi bi-telephone"></i>
+                                        </div>
+                                        {% if current_user.user.phone_numbers%}
+                                        <div class="col-10 text-start">
+                                            {{ current_user.user.phone_numbers[0].number }}
+                                        </div>
+                                        {%endif%}
+                                    </li>
+                                </ul>
+                            </div>
+                           
+                            <a type = "button" class="btn btn-small btn-block btn-success text-center d-flex justify-content-center align-items-center" href = "">Edit</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-9">
+
+
+                    <div class="container">
+                        <div class="card">
+                            <div class="card right-profile-card mb-0">
+                                <div class="card-header alert-primary">
+                                    <ul class="nav nav-pills" id="pills-tab" role="tablist">
+                                        <li class="nav-item">
+                                            <a class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-selected="true">Work Experience</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" id="pills-education-tab" data-toggle="pill" href="#pills-education" role="tab" aria-selected="false">Education</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" id="pills-timeline-tab" data-toggle="pill" href="#pills-timeline" role="tab" aria-selected="false">Timeline</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" id="pills-document-tab" data-toggle="pill" href="#" role="tab" aria-selected="false">Document</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" id="pills-event-tab" data-toggle="pill" href="#" role="tab" aria-selected="false">Event</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" id="pills-tasks-tab" data-toggle="pill" href="#" role="tab" aria-selected="false">Tasks</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                
+                                
+                            </div> 
+
+                        
+                            <div class="card-body">
+                                <div class="row">
+                                        <div class="col-xl-12">
+                                            <div class="card">
+                                                <div class="card-body">
+                                                    <div class="row align-items-center">
+                                                        <div class="table-responsive px-3">
+                                                            <table class="table table-striped align-middle table-nowrap">
+                                                                <tbody>
+                                                                    {% for exam_regis in exam_registrations%}
+                                                                    <tr>
+                                                                        <td class = "document-image">
+                                                                            <div class="avatar-lg me-4 immmmmmmm">
+                                                                                <img src="{{ url_for('static', filename='img/888108.png') }}" class="img-fluid rounded " alt="">
+                                                                            </div>
+                                                                        </td>
+                                                                        <td class = "text-start">
+                                                                            <ul class="list-unstyled ps-0 mb-0">
+                                                                                <li>
+                                                                                    <p class="text-muted mb-1 text-truncate">
+                                                                                        <i class="bi bi-alarm"></i>
+                                                                                        {{exam_regis.start_time}} - {{exam_regis.end_time}}
+                                                                                    </p>
+                                                                                </li>
+                                                                                <li>
+                                                                                    <p class="text-muted mb-1 text-truncate">
+                                                                                        <i class="bi bi-calendar"></i>
+                                                                                        {{exam_regis.day}}
+                                                                                    </p>
+                                                                                </li>
+                                                                                
+                                                                            </ul>
+                                                                        </td>
+                                
+                                                                        <td class = "text-start">
+                                                                                <h6 >
+                                                                                    <a href="ecommerce-product-detail.html" class="text-dark text-start">
+                                                                                        Bác Sĩ: {{exam_regis.doctor_name}}
+                                                                                    </a>
+                                                                                </h6>
+                                                                                
+                                                                        </td>
+                                
+                                
+                                                                        <td class = "text-start">
+                                                                            {%if exam_regis.watting_status == true%}
+                                                                            <p>Đang chờ</p>
+                                                                            {%else%}
+                                                                            <p>Hoàn thành</p>
+                                                                            {%endif%}
+                                                                            
+                                                                        </td>
+                                
+                                                                        <td class = "text-start">
+                                                                            {%if exam_regis.watting_status == true%}
+                                                                            <i class="bi bi-hourglass"></i>
+                                                                            {%else%}
+                                                                            <i class="bi bi-check-square"></i>
+                                                                            {%endif%}
+                                                                            
+                                                                        </td>
+                                
+            
+                                
+                                                                        
+                                                                    </tr>
+                                                                    {% endfor %}
+        
+                                
+                                                                </tbody>
+                                                            </table>
+                                                            
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                </div>
+                            </div>
+
+                            <!-- phân trang -->
+                            <nav aria-label="Page navigation" class="d-flex justify-content-center mt-4">
+                                <ul class="pagination">
+                                    <!-- Nút "Previous" -->
+                                    {% if pagination.has_prev %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('auth.user_page', page=pagination.prev_num) }}" aria-label="Previous">
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </a>
+                                    </li>
+                                    {% else %}
+                                    <li class="page-item disabled">
+                                        <span class="page-link" aria-label="Previous">
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </span>
+                                    </li>
+                                    {% endif %}
+                                    
+                                    <!-- Các số trang -->
+                                    {% for page in pagination.iter_pages(left_edge=2, right_edge=2, left_current=1, right_current=1) %}
+                                    {% if page %}
+                                        {% if page == pagination.page %}
+                                        <li class="page-item active" aria-current="page">
+                                            <span class="page-link">{{ page }}</span>
+                                        </li>
+                                        {% else %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="{{ url_for('auth.user_page', page=page) }}">{{ page }}</a>
+                                        </li>
+                                        {% endif %}
+                                    {% else %}
+                                    <li class="page-item disabled">
+                                        <span class="page-link">...</span>
+                                    </li>
+                                    {% endif %}
+                                    {% endfor %}
+                                    
+                                    <!-- Nút "Next" -->
+                                    {% if pagination.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('auth.user_page', page=pagination.next_num) }}" aria-label="Next">
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </a>
+                                    </li>
+                                    {% else %}
+                                    <li class="page-item disabled">
+                                        <span class="page-link" aria-label="Next">
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </span>
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                        </div>
+  
+                    </div>
+
+
+
+                </div>
+
+
+            </div>
+        </div>
+        <a href="{{url_for('appointment.appointment_main')}}" class="btn btn-light btn-bg btn-slide hover-slide-right mt-4">
+            <span>Book Appointment</span>
+          </a>
+    </div>
+
+{% endblock content %}

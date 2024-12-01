@@ -1,15 +1,17 @@
 from flask import Blueprint, render_template, request, redirect,url_for
 from app.models import Doctor, ExamTime,ExamSchedule
-from ..services.appointment_services import get_exam_time,add_apointment,add_exam_scheduled, get_exam_scheduled
+from ..services.appointment_services import get_exam_time,add_apointment,add_exam_scheduled, get_exam_scheduled, check_existing_schedule
 import math
 from config import Config
 from flask_login import current_user,login_required
 from datetime import datetime, timedelta, date
+from ..decorators import role_required
 
 appointment = Blueprint('appointment', __name__, url_prefix='/appointment')
 
 
 @appointment.route('/')
+
 def appointment_main():
 
     if current_user.is_authenticated:
@@ -39,11 +41,7 @@ def appointment_main():
     else:
         return redirect(url_for('auth.user_login'))
 
-@appointment.route('/details' , methods=['GET', 'POST'])
-def doctor_detail():
-    doctor_id = request.form.get('doctor_id')
-    doctor = Doctor.query.get(doctor_id)
-    return render_template('appointment/doctor_detail.html',doctor=doctor)
+
 
 
 
@@ -76,10 +74,7 @@ def book():
     # Lấy danh sách giờ đã được đặt cho bác sĩ trong ngày được chọn
     booked_times = ExamSchedule.query.filter_by(doctor_id=doctor_id, date=selected_day).all()
     booked_time_ids = [schedule.exam_time_id for schedule in booked_times]
-    print(doctor_id)
-    print(selected_day)
-    print([b.date for b in booked_times])
-    print(booked_time_ids)
+    
 
     return render_template(
         'appointment/bookappointment.html',
@@ -96,7 +91,6 @@ def appoint_detail():
     doctor_id = request.form.get('doctor_id')
     exam_time_id =request.form.get('exam_time_id')
     exam_day = datetime.strptime(request.form.get('exam_day'),  "%Y-%m-%d")
-    print(exam_day)
     doctor = Doctor.query.get(doctor_id)
     exam_time = ExamTime.query.get(exam_time_id)
 
@@ -106,6 +100,7 @@ def appoint_detail():
 
 
     return render_template('appointment/appoint_detail.html',doctor=doctor, exam_time=exam_time,exam_day = exam_day)
+
 @appointment.route('/confirm-appoint/', methods=['GET', 'POST'])
 @login_required
 def confirm_appoint():
@@ -116,9 +111,9 @@ def confirm_appoint():
             doctor_id = request.form.get('doctor_id')
             exam_time_id =request.form.get('exam_time_id')
             symptom = str(request.form.get('symptom'))
-            exam_day = datetime.strptime(request.form.get('exam_day'),  "%Y-%m-%d %H:%M:%S")
-            
-            exam_registration = add_apointment(symptom=symptom, doctor_id=doctor_id, patient_id=current_user.user.id)
-            add_exam_scheduled(exam_time_id,doctor_id,exam_day, exam_registration.id) 
+            exam_day = datetime.strptime(request.form.get('exam_day'),  "%Y-%m-%d %H:%M:%S").date()
+            if not check_existing_schedule(exam_time_id,doctor_id,exam_day):
+                exam_registration = add_apointment(symptom=symptom, doctor_id=doctor_id, patient_id=current_user.user.id)
+                add_exam_scheduled(exam_time_id,doctor_id,exam_day, exam_registration.id)
             return redirect(url_for('appointment.appointment_main'))
     

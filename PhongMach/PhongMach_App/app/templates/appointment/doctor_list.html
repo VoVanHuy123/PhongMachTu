@@ -45,7 +45,7 @@
                    {% endif %}
                   <div class="d-flex flex-column mt-4">
 
-                    <form method="POST" action="{{ url_for('appointment.doctor_detail') }}">
+                    <form method="POST" action="{{ url_for('doctor_user.doctor_detail') }}">
                       <input type="hidden" name="doctor_id" value="{{doctor.id}}" />
                       <button type = "submit"  data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-sm d-flex align-items-center justify-content-center" >
                         <span>Detail</span>
