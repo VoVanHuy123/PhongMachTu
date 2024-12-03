@@ -15,7 +15,7 @@ from flask_admin.contrib.sqla import ModelView
 
 class Account(db.Model, UserMixin):
     id = Column(Integer, primary_key=True)
-    user_name = Column(db.String(50), nullable=False, unique=True)
+    user_name = Column(String(50), nullable=False, unique=True)
     password = Column(String(50), nullable=False)
     create_day = Column(Date, default=date.today)
     active = Column(Boolean, default=True)
@@ -135,21 +135,22 @@ med_category = db.Table(
     Column("category_id", Integer, ForeignKey('category.id'), primary_key=True)
 )
 
-med_unit = db.Table(
-    "med_unit",
-    Column("medicine_id", Integer, ForeignKey('medicine.id'), primary_key=True),
-    Column("unit_id", Integer, ForeignKey('medicine_unit.id'), primary_key=True),
-)
+
+class MedicineUnit(db.Model):
+    unit_id = Column(Integer, ForeignKey('unit.id'), primary_key=True, nullable=False)
+    medicine_id = Column(Integer, ForeignKey('medicine.id'), primary_key=True, nullable=False)
+    is_default = Column(Boolean,default = False)
 
 # Mô hình Category
 class Category(db.Model):
     id = Column(Integer, primary_key=True)
     name = Column(String(100), nullable=False)
 
-# Mô hình MedicineUnit
-class MedicineUnit(db.Model):
+# Mô hình Unit
+class Unit(db.Model):
     id = Column(Integer, primary_key=True)
     unit = Column(String(100), nullable=False)
+    medicine = relationship("MedicineUnit", backref="unit",lazy = True)
 
 # Mô hình Medicine
 class Medicine(db.Model):
@@ -159,7 +160,12 @@ class Medicine(db.Model):
     unit_price = Column(Float, nullable=False, default=0)
     medical_exams = relationship("DetailExam", backref="medicine", lazy=True)
     categories = relationship("Category", secondary=med_category, lazy="subquery", backref=backref('medicine', lazy=True))
-    units = relationship("MedicineUnit", secondary=med_unit, lazy="subquery", backref=backref('medicine', lazy=True))
+    units = relationship("MedicineUnit", backref="medicine", lazy=True)
 
 
-
+class UnitConvert(db.Model):
+    id = Column(Integer, primary_key=True)
+    med_id = Column(Integer, ForeignKey("medicine.id"), nullable=False)
+    source_unit_id = Column(Integer, ForeignKey("unit.id"))
+    target_unit_id = Column(Integer, ForeignKey("unit.id"))
+    convert_rate = Column(Float, nullable=False, default=1)

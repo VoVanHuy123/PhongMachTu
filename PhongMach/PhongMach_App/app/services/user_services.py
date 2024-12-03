@@ -2,6 +2,8 @@ from app.models import Doctor,User, PhoneNumber, Account, Patient
 from config import Config
 from app.extensions import db
 import hashlib
+from datetime import datetime
+from flask import jsonify
 
 def count_Doctor():
     return Doctor.query.count()
@@ -61,4 +63,34 @@ def check_login(user_name, password):
 def get_user_account_by_id(user_id):
     return Account.query.get(user_id)
 
+def update_user_info(account,data):
+    account.user.first_name = data['first_name']
+    account.user.last_name = data['last_name']
+    account.user.email = data['email']
+    account.user.gender = data['gender']
+    account.user.birth_day = datetime.strptime(data['birth_day'], '%Y-%m-%d').date()
+    
+def get_user_form_data(request):
+    """
+    Lấy dữ liệu người dùng từ request form và file upload.
+    """
+    form_data = {
+        'first_name': request.form.get('first_name'),
+        'last_name': request.form.get('last_name'),
+        'email': request.form.get('email'),
+        'phone_number': request.form.get('phone_number'),
+        'gender': request.form.get('gender'),
+        'birth_day': request.form.get('birth_day'),
+        'image': request.files.get('image'),
+        'insurance_number': request.form.get('insurance_number'),
+        'confirm': request.form.get('confirm'),
+    }
+    return form_data
+
+def get_user_account_form_data(request):
+    form_data = {
+        'user_name': request.form.get('user_name'),
+        'password': request.form.get('password'),
+    }
+    return form_data
 

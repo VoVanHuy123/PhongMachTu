@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template,request,redirect, url_for,jsonify
-from ..services.user_services import add_user_default,check_login, get_user_account_by_id
+from ..services.user_services import *
 from ..services.appointment_services import *
 from app.extensions import db, login_manager
 from datetime import datetime
@@ -21,11 +21,13 @@ def user_login():
         if user_account and user_account.user.role == 'patient':
             login_user(user_account)#ghi nhận biến toàn cục user
             return redirect(url_for('main.index'))
+        elif user_account and user_account.user.role == 'doctor':
+            login_user(user_account)#ghi nhận biến toàn cục user
+            return redirect(url_for('doctor_user.doctor_user_run'))
+        elif user_account and user_account.user.role == 'admin':
+            login_user(user_account)#ghi nhận biến toàn cục user
+            return redirect('/admin')
         else:
-            if user_account and user_account.user.role == 'doctor':
-                login_user(user_account)#ghi nhận biến toàn cục user
-                return redirect(url_for('doctor_user.doctor_user_run'))
-            else:
                 err_msg = "username or password is incorrcet"
     return render_template('auth/login.html',err_msg = err_msg)
 
@@ -86,7 +88,6 @@ def user_register():
     return render_template('auth/register.html', err_msg = err_msg)
 
 @auth.route('/user_page')
-
 def user_page():
     page = request.args.get('page', 1, type=int)  # Lấy trang hiện tại từ URL (mặc định là trang 1)
     per_page = 5  
@@ -104,3 +105,28 @@ def user_page():
     } for exam_regis in pagination.items]  # .items chứa các đối tượng trong trang hiện tại
 
     return render_template('auth/user_page.html',exam_registrations=exam_registrations,pagination=pagination)
+
+@auth.route('/edit_user',methods=['POST','GET'])
+def edit_user_info():
+    try:
+        data = get_user_form_data(request)
+        print(data)
+        
+        update_user_info(current_user, data)
+        
+        if data['phone_number']:
+            current_user.user.phone_numbers[0].number = data['phone_number']
+        if data['image']:
+            try:
+                res = cloudinary.uploader.upload(data['image'])
+                image_path = res['secure_url']
+                current_user.user.image = image_path
+            except Exception as e:
+                return jsonify({'success': False, 'message': f'Upload ảnh thất bại: {str(e)}'}), 500
+
+        db.session.commit()
+        return jsonify({'success': True}),200
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500

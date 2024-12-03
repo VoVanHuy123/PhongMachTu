@@ -1,8 +1,8 @@
-"""Tạo các bảng cơ bản
+"""empty message
 
-Revision ID: c4a2fb0b5c4b
+Revision ID: 8800b250d02c
 Revises: 
-Create Date: 2024-11-21 11:50:49.587393
+Create Date: 2024-12-03 13:47:45.126969
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'c4a2fb0b5c4b'
+revision = '8800b250d02c'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -25,7 +25,6 @@ def upgrade():
     sa.Column('create_day', sa.Date(), nullable=True),
     sa.Column('active', sa.Boolean(), nullable=True),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('password'),
     sa.UniqueConstraint('user_name')
     )
     op.create_table('category',
@@ -46,7 +45,7 @@ def upgrade():
     sa.Column('unit_price', sa.Float(), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_table('medicine_unit',
+    op.create_table('unit',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('unit', sa.String(length=100), nullable=False),
     sa.PrimaryKeyConstraint('id')
@@ -58,12 +57,24 @@ def upgrade():
     sa.ForeignKeyConstraint(['medicine_id'], ['medicine.id'], ),
     sa.PrimaryKeyConstraint('medicine_id', 'category_id')
     )
-    op.create_table('med_unit',
-    sa.Column('medicine_id', sa.Integer(), nullable=False),
+    op.create_table('medicine_unit',
     sa.Column('unit_id', sa.Integer(), nullable=False),
+    sa.Column('medicine_id', sa.Integer(), nullable=False),
+    sa.Column('is_default', sa.Boolean(), nullable=True),
     sa.ForeignKeyConstraint(['medicine_id'], ['medicine.id'], ),
-    sa.ForeignKeyConstraint(['unit_id'], ['medicine_unit.id'], ),
-    sa.PrimaryKeyConstraint('medicine_id', 'unit_id')
+    sa.ForeignKeyConstraint(['unit_id'], ['unit.id'], ),
+    sa.PrimaryKeyConstraint('unit_id', 'medicine_id')
+    )
+    op.create_table('unit_convert',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('med_id', sa.Integer(), nullable=False),
+    sa.Column('source_unit_id', sa.Integer(), nullable=True),
+    sa.Column('target_unit_id', sa.Integer(), nullable=True),
+    sa.Column('convert_rate', sa.Float(), nullable=False),
+    sa.ForeignKeyConstraint(['med_id'], ['medicine.id'], ),
+    sa.ForeignKeyConstraint(['source_unit_id'], ['unit.id'], ),
+    sa.ForeignKeyConstraint(['target_unit_id'], ['unit.id'], ),
+    sa.PrimaryKeyConstraint('id')
     )
     op.create_table('user',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -74,32 +85,35 @@ def upgrade():
     sa.Column('email', sa.String(length=50), nullable=False),
     sa.Column('image', sa.String(length=255), nullable=True),
     sa.Column('account_id', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['account_id'], ['account.id'], ),
+    sa.Column('role', sa.String(length=50), nullable=False),
+    sa.ForeignKeyConstraint(['account_id'], ['account.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('account_id'),
     sa.UniqueConstraint('email')
     )
     op.create_table('admin',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('doctor',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('specialty', sa.String(length=100), nullable=True),
+    sa.Column('degree', sa.String(length=100), nullable=True),
     sa.Column('experience', sa.String(length=100), nullable=True),
     sa.Column('current_workplace', sa.String(length=100), nullable=True),
-    sa.ForeignKeyConstraint(['id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('nurse',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('patient',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('insurance_number', sa.String(length=50), nullable=True),
-    sa.ForeignKeyConstraint(['id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('insurance_number')
     )
@@ -108,27 +122,19 @@ def upgrade():
     sa.Column('number', sa.String(length=15), nullable=False),
     sa.Column('type_number', sa.String(length=50), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('number')
     )
     op.create_table('exam_registration',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('symptom', sa.String(length=255), nullable=True),
-    sa.Column('exam_day', sa.Date(), nullable=False),
     sa.Column('patient_id', sa.Integer(), nullable=False),
     sa.Column('doctor_id', sa.Integer(), nullable=False),
+    sa.Column('is_waiting', sa.Boolean(), nullable=True),
     sa.ForeignKeyConstraint(['doctor_id'], ['doctor.id'], ),
     sa.ForeignKeyConstraint(['patient_id'], ['patient.id'], ),
     sa.PrimaryKeyConstraint('id')
-    )
-    op.create_table('exam_schedule',
-    sa.Column('exam_time_id', sa.Integer(), nullable=False),
-    sa.Column('doctor_id', sa.Integer(), nullable=False),
-    sa.Column('date', sa.Date(), nullable=False),
-    sa.ForeignKeyConstraint(['doctor_id'], ['doctor.id'], ),
-    sa.ForeignKeyConstraint(['exam_time_id'], ['exam_time.id'], ),
-    sa.PrimaryKeyConstraint('exam_time_id', 'doctor_id')
     )
     op.create_table('medical_exam',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -150,14 +156,26 @@ def upgrade():
     sa.ForeignKeyConstraint(['medicine_id'], ['medicine.id'], ),
     sa.PrimaryKeyConstraint('medical_exam_id', 'medicine_id')
     )
+    op.create_table('exam_schedule',
+    sa.Column('exam_time_id', sa.Integer(), nullable=False),
+    sa.Column('doctor_id', sa.Integer(), nullable=False),
+    sa.Column('date', sa.Date(), nullable=False),
+    sa.Column('is_book', sa.Boolean(), nullable=False),
+    sa.Column('exam_registration_id', sa.Integer(), nullable=False),
+    sa.ForeignKeyConstraint(['doctor_id'], ['doctor.id'], ),
+    sa.ForeignKeyConstraint(['exam_registration_id'], ['exam_registration.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['exam_time_id'], ['exam_time.id'], ),
+    sa.PrimaryKeyConstraint('exam_time_id', 'doctor_id', 'date'),
+    sa.UniqueConstraint('exam_registration_id')
+    )
     # ### end Alembic commands ###
 
 
 def downgrade():
     # ### commands auto generated by Alembic - please adjust! ###
+    op.drop_table('exam_schedule')
     op.drop_table('detail_exam')
     op.drop_table('medical_exam')
-    op.drop_table('exam_schedule')
     op.drop_table('exam_registration')
     op.drop_table('phone_number')
     op.drop_table('patient')
@@ -165,9 +183,10 @@ def downgrade():
     op.drop_table('doctor')
     op.drop_table('admin')
     op.drop_table('user')
-    op.drop_table('med_unit')
-    op.drop_table('med_category')
+    op.drop_table('unit_convert')
     op.drop_table('medicine_unit')
+    op.drop_table('med_category')
+    op.drop_table('unit')
     op.drop_table('medicine')
     op.drop_table('exam_time')
     op.drop_table('category')

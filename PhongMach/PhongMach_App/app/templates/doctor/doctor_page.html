@@ -104,7 +104,7 @@
                                     
                                 </div>
                                 <div class="col-8 ">
-                                    <span id = "patient-name">Vox van huy</span>
+                                    <span id = "patient-name"></span>
                                     
                                 </div>
                             </div>
@@ -114,7 +114,7 @@
                                     
                                 </div>
                                 <div class="col-8 ">
-                                    <span id = "patient-gender">Vox van huy</span>
+                                    <span id = "patient-gender"></span>
                                     
                                 </div>
                             </div>
@@ -124,7 +124,7 @@
                                     
                                 </div>
                                 <div class="col-8 ">
-                                    <span id = "patient-birth-day">Vox van huy</span>
+                                    <span id = "patient-birth-day"></span>
                                     
                                 </div>
                             </div>
@@ -135,15 +135,15 @@
                     </div>
                         <div class="mb-2">
                             <label for="phone" class="form-label">Số điện thoại</label>
-                            <input type="text" class="form-control" id="phone" placeholder="Nhập số điện thoại">
+                            <input disabled type="text" class="form-control" id="phone" >
                         </div>
                         <div class="mb-2">
                             <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email" placeholder="Nhập email">
+                            <input disabled type="email" class="form-control" id="email" >
                         </div>
                         <div class="mb-3">
                             <label for="symptoms" class="form-label">Triệu chứng</label>
-                            <textarea class="form-control" id="symptoms" rows="3" placeholder="Mô tả triệu chứng"></textarea>
+                            <textarea disabled class="form-control" id="symptoms" rows="3" ></textarea>
                         </div>
                         <form method = "post" action ="{{url_for('doctor_user.create_medical')}}">
                             <input type="hidden" class="form-control" id="patient-id" name ="patient_id" value = "">

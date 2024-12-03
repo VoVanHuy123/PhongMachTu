@@ -39,7 +39,7 @@ def doctor_detail():
     if not doctor_id:
         doctor_id = current_user.user.id
     doctor = get_doctor_by_id(doctor_id)
-    return render_template('appointment/doctor_detail.html',doctor=doctor)
+    return render_template('doctor/doctor_detail.html',doctor=doctor)
 
 
 @doctor_user.route('/medical', methods=['GET', 'POST'])

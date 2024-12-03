@@ -11,7 +11,7 @@ appointment = Blueprint('appointment', __name__, url_prefix='/appointment')
 
 
 @appointment.route('/')
-
+@role_required("patient")
 def appointment_main():
 
     if current_user.is_authenticated:

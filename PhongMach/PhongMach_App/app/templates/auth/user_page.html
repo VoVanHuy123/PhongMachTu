@@ -55,7 +55,13 @@
                                 </ul>
                             </div>
                            
-                            <a type = "button" class="btn btn-small btn-block btn-success text-center d-flex justify-content-center align-items-center" href = "">Edit</a>
+                            
+                            <a type = "button" class="btn btn-small btn-block btn-success text-center d-flex justify-content-center align-items-center" data-bs-toggle="modal" data-bs-target="#editUserModal">Edit</a>
+                            {%if current_user.is_authenticated == false or current_user.user.role == "patient"%}
+                            <a href="{{url_for('appointment.appointment_main')}}" class="btn btn-dark btn-bg btn-slide hover-slide-right mt-2 btn-block btn-success text-center d-flex justify-content-center align-items-center">
+                                <span>Book Appointment</span>
+                              </a>
+                              {%endif%}
                         </div>
                     </div>
                 </div>
@@ -99,6 +105,7 @@
                                                 <div class="card-body">
                                                     <div class="row align-items-center">
                                                         <div class="table-responsive px-3">
+                                                            {% if exam_registrations%}
                                                             <table class="table table-striped align-middle table-nowrap">
                                                                 <tbody>
                                                                     {% for exam_regis in exam_registrations%}
@@ -163,7 +170,9 @@
                                 
                                                                 </tbody>
                                                             </table>
-                                                            
+                                                            {%else%}
+                                                            Chưa có  phiếu đăng kí nào
+                                                            {%endif%}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -236,9 +245,91 @@
 
             </div>
         </div>
-        <a href="{{url_for('appointment.appointment_main')}}" class="btn btn-light btn-bg btn-slide hover-slide-right mt-4">
-            <span>Book Appointment</span>
-          </a>
+    </div>
+
+
+
+
+
+
+
+
+
+
+    <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editUserModalLabel">Cập Nhật Thông Tin</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editUserForm">
+                        <div class="row">
+                            <!-- User Name -->
+                            <div class="col-md-6 mb-3">
+                                <label for="username" class="form-label">Họ:</label>
+                                <input type="text" id="Username" name="user_name" class="form-control" placeholder="Nhập username" value="{{ current_user.user_name}}">
+                            </div>
+                            <!-- Pass Word -->
+                            <div class="col-md-6 mb-3">
+                                <label for="password" class="form-label">Tên:</label>
+                                <input type="text" id="Password" name="password" class="form-control" placeholder="Nhập password" value="{{ current_user.password }}">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <!-- First Name -->
+                            <div class="col-md-6 mb-3">
+                                <label for="firstName" class="form-label">Họ:</label>
+                                <input type="text" id="firstName" name="first_name" class="form-control" placeholder="Nhập họ" value="{{ current_user.user.first_name }}">
+                            </div>
+                            <!-- Last Name -->
+                            <div class="col-md-6 mb-3">
+                                <label for="lastName" class="form-label">Tên:</label>
+                                <input type="text" id="lastName" name="last_name" class="form-control" placeholder="Nhập tên" value="{{ current_user.user.last_name }}">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <!-- Email -->
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">Email:</label>
+                                <input type="email" id="email" name="email" class="form-control" placeholder="Nhập email" value="{{ current_user.user.email }}">
+                            </div>
+                            <!-- Phone Number -->
+                            <div class="col-md-6 mb-3">
+                                <label for="phoneNumber" class="form-label">Số Điện Thoại:</label>
+                                <input type="text" id="phoneNumber" name="phone_number" class="form-control" placeholder="Nhập số điện thoại" value="{{ current_user.user.phone_numbers[0].number if current_user.user.phone_numbers }}">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <!-- Gender -->
+                            <div class="col-md-6 mb-3">
+                                <label for="gender" class="form-label">Giới Tính:</label>
+                                <select id="gender" name="gender" class="form-select">
+                                    <option value="Male" {% if current_user.user.gender == "Male" %}selected{% endif %}>Nam</option>
+                                    <option value="Female" {% if current_user.user.gender == "Female" %}selected{% endif %}>Nữ</option>
+                                    <option value="Other" {% if current_user.user.gender == "Other" %}selected{% endif %}>Khác</option>
+                                </select>
+                            </div>
+                            <!-- Birth Date -->
+                            <div class="col-md-6 mb-3">
+                                <label for="birthDay" class="form-label">Ngày Sinh:</label>
+                                <input type="date" id="birthDate" name="birth_day" class="form-control" value="{{ current_user.user.birth_day }}">
+                            </div>
+                        </div>
+                        <!-- Profile Picture -->
+                        <div class="mb-3">
+                            <label for="image" class="form-label">Ảnh Đại Diện:</label>
+                            <input type="file" id="profilePicture" name="image" class="form-control">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" id="saveChangesButton" class="btn btn-primary">Lưu Thay Đổi</button>
+                </div>
+            </div>
+        </div>
     </div>
 
 {% endblock content %}
