@@ -5,7 +5,8 @@
 
   <nav class="navbar navbar-expand-lg navbar-scroll  shadow-0 border-bottom border-dark">
     <div class="container d-flex justify-content-center align-items-center">
-      <a class="navbar-brand" {%if current_user.is_authenticated == false or current_user.user.role == "patient"%} href = "/"{%endif%}><i class="bi bi-hospital-fill"></i></a>
+      <a class="navbar-brand" {%if current_user.is_authenticated == false or current_user.user.role == "patient"
+      %} href = "/"{%endif%}><i class="bi bi-hospital-fill"></i></a>
       <button class="navbar-toggler" type="button" data-mdb-toggle="collapse"
         data-mdb-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
         aria-label="Toggle navigation">
@@ -13,17 +14,27 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav ms-auto d-flex justify-content-center align-items-center">
-          <li class="nav-item">
-            <a class="nav-link" href="#!">Our Story</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#!">Membership</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#!">Write</a>
-          </li>
           {% if current_user.is_authenticated %}
-          <a href = "{{url_for('auth.user_page')}}" id="profile-button" class="btn btn-dark ms-3 d-flex justify-content-center align-items-center">
+            {% if current_user.user.role == "patient"%}
+              <li class="nav-item">
+                <a class="nav-link" href="{{url_for('appointment.appointment_main')}}">Bác Sĩ</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{url_for('appointment.appointment_main')}}">Đặt Lịch</a>
+              </li>
+            {%elif current_user.user.role == 'doctor'%}
+            <li class="nav-item">
+              <a class="nav-link" href="{{url_for('doctor_user.doctor_user_run')}}">Danh sách khám</a>
+            </li>
+            {%endif%}
+            
+            <a {%if current_user.user.role == "patient"%}
+              href = "{{url_for('auth.user_page')}}"
+              {%elif current_user.user.role == "doctor"%}
+              href = "{{url_for('doctor_user.doctor_detail')}}"
+              {%endif%}
+              id="profile-button" 
+              class="btn btn-dark ms-3 d-flex justify-content-center align-items-center">
             {%if current_user.user.image%}
               <img src = "{{current_user.user.image}}" width = "30px" >
             {% else %}
@@ -34,13 +45,12 @@
           <li class="nav-item">
             <a class="nav-link" href="{{url_for('auth.user_logout')}}">Đăng xuất</a>
           </li>
-          {%else%}
+        {%else%}
           <li class="nav-item">
             <a class="nav-link" href="{{url_for('auth.user_login')}}">Sign In</a>
           </li>
           <a href = "{{url_for('auth.user_register')}}" type="button" class="btn btn-dark ms-3 d-flex justify-content-center align-items-center">Sign up</a>
           {%endif%}
-
 
 
         </ul>

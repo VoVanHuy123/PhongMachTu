@@ -20,15 +20,16 @@ def create_app():
     login_manager.init_app(app)
     init_admin(app)
     Config.init_cloudinary()
+    
 
     from .auth.routes import auth
-    from .manger.routes import manager
+    from .cashier.routes import cashier
     from .appointment.routes import appointment
     from .doctor.routes import doctor_user
     from .routes import main
     app.register_blueprint(main)
     app.register_blueprint(auth)
-    app.register_blueprint(manager)
+    app.register_blueprint(cashier)
     app.register_blueprint(appointment)
     app.register_blueprint(doctor_user)
     return app

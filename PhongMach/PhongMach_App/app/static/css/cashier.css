@@ -1,0 +1,18 @@
+.invoice {
+    max-width: 800px;
+    margin: 0 auto;
+    border: 1px solid #ddd;
+    padding: 20px;
+    background-color: white;
+
+}
+.header img {
+    max-height: 80px;
+}
+.header {
+    text-align: center;
+}
+.table-bordered th,
+.table-bordered td {
+    border: 1px solid #000 !important;
+}

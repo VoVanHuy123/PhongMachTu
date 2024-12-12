@@ -1,15 +1,17 @@
 {% extends "layout/base.html" %}
 
-
+{% block extra_js %}
+    <script type="module" src="{{ url_for('static', filename='js/medical.js') }}"></script>
+{% endblock %}
 {% block content%}
    <div class="">
-    <div class="container mt-4 border p-4 m-3">
+    <div class="container mt-4 border p-4 m-3 min-vh-100 d-flex justify-content-start  flex-column">
         <div class="row mb-3">
           <div class="col-md-6">
             <input type = "hidden" id = "patient-id" name = "patient-id" value = "{{patient.id}}">
             <input type = "hidden" id = "exam-registration-id" name = "exam_registration_id" value = "{{exam_registration_id}}">
             <label for="patientName" class="form-label">Họ tên:</label>
-            <span id="patientName">{{ patient.first_name }} {{ patient.last_name }} -- {{exam_registration_id}}</span>
+            <span id="patientName">{{ patient.first_name }} {{ patient.last_name }}</span>
           </div>
           <div class="col-md-6">
             <label for="examDate" class="form-label">Ngày khám:</label>
@@ -28,7 +30,7 @@
               <th scope="col">Đơn vị</th>
               <th scope="col">Số lượng</th>
               <th scope="col">Cách dùng</th>
-              <th scope="col">Hành động</th>
+              <th scope="col"></th>
             </tr>
           </thead>
           <tbody id = "table-body-med-list">
@@ -40,12 +42,18 @@
                 <i class="bi bi-plus"></i> Thêm thuốc
               </button>
         </div>
-        <div class="text-center">
-            <button id = "confirm-medical-exam" class="btn btn-success " >
-                <i class="bi bi-plus"></i> xác nhận
-              </button>
-        </div>
+        <div class="text-center ml-auto mt-auto">
+          <button id = "confirm-medical-exam" class="btn btn-success " >
+              <i class="bi bi-plus"></i> xác nhận
+            </button>
+          <a href = {{url_for('doctor_user.doctor_user_run')}}>
+            <button id = "confirm-medical-exam" class="btn btn-primary " >
+              <i class="bi bi-backspace"></i> Hủy
+            </button>
+          </a>
       </div>
+      </div>
+      
    </div>
 
 
@@ -65,9 +73,13 @@
             <div class="row">
               <!-- Form nhập thông tin thuốc -->
               <div class="col-md-8">
+
+                
+                <input type = "hidden" id="add_med_id" value="" >
+
                 <div class="mb-3">
                   <label for="medicineName" class="form-label">Tên thuốc:</label>
-                  <input type="text" id="medicineName" class="form-control" placeholder="Nhập tên thuốc">
+                  <input disabled type="text" id="medicineName" class="form-control" placeholder="Nhập tên thuốc">
                 </div>
                 <div class="mb-3">
                   <label for="medicineUnit" class="form-label">Đơn vị:</label>
@@ -75,9 +87,15 @@
                     <option value="" disabled selected>Chọn 
                   </select>
                 </div>
-                <div class="mb-3">
-                  <label for="medicineQuantity" class="form-label">Số lượng:</label>
-                  <input type="number" id="medicineQuantity" class="form-control" value="" min="1">
+                <div class="row">
+                  <div class="mb-3 col-7">
+                    <label for="medicineQuantity" class="form-label">Số lượng:</label>
+                    <input type="number" id="medicineQuantity" class="form-control" value="" min="1">
+                  </div>
+                  <div class="mb-3 col-5">
+                    <label for="medicineInventory" class="form-label">tồn kho</label>
+                    <input disabled type="number" id="medicineInventory" class="form-control" value="" min="">
+                  </div>
                 </div>
                 <div class="mb-3">
                   <label for="medicineUsage" class="form-label">Cách sử dụng:</label>
@@ -123,4 +141,45 @@
       </div>
     </div>
   </div>
+
+
+
+
+  <!-- Modal Edit Medicine -->
+<div class="modal fade" id="editMedicineModal" tabindex="-1" aria-labelledby="editMedicineModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editMedicineModalLabel">Chỉnh sửa thông tin thuốc</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="editMedicineForm">
+          <div class="mb-3">
+            <label for="editMedicineName" class="form-label">Tên thuốc</label>
+            <input disabled type="text" class="form-control" id="editMedicineName" readonly>
+          </div>
+          <div class="mb-3">
+            <label for="editMedicineUnit" class="form-label">Đơn vị</label>
+            <select class="form-select" id="editMedicineUnit">
+              <option value="" disabled selected>Chọn đơn vị</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="editMedicineQuantity" class="form-label">Số lượng</label>
+            <input type="number" class="form-control" id="editMedicineQuantity" min="1">
+          </div>
+          <div class="mb-3">
+            <label for="editMedicineUsage" class="form-label">Cách dùng</label>
+            <textarea class="form-control" id="editMedicineUsage" rows="2"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+        <button type="button" class="btn btn-primary" id="confirmEditMedicine">Lưu thay đổi</button>
+      </div>
+    </div>
+  </div>
+</div>
 {%endblock%}

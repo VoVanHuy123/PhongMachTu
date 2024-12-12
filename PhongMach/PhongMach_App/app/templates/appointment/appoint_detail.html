@@ -5,7 +5,7 @@
         <div class="col-md-4">
             <div class="panel panel-default">
                 <div class="panel-body text-center">
-                    <div class="pv-lg"><img class="center-block img-responsive img-circle img-thumbnail thumb96" src="{{ url_for('static', filename='img/' +  doctor.image) }}" alt="Contact"></div>
+                    <div class="pv-lg"><img class="center-block img-responsive img-circle img-thumbnail thumb96" src="{{ doctor.image }}" alt="Contact"></div>
                     <h3 class="m0 text-bold">{{doctor.last_name}} {{doctor.first_name}}</h3>
 
                     <div class="mv-lg row">
@@ -84,7 +84,7 @@
                                 <h6 class="mb-0">Phone</h6>
                               </div>
                               <div class="col-sm-9 text-secondary">
-                                {% if current_user.user.phone_numbers and current_user.user.phone_numbers|length > 0  %}
+                                {% if current_user.user.phone_numbers %}
                                 {%for number in current_user.user.phone_numbers%}
                                     {{number.number}}
                                 {%endfor%}
@@ -94,24 +94,34 @@
                               </div>
                             </div>
                             <hr>
-                            <form class="mb-5" method="post" action = "{{url_for('appointment.confirm_appoint')}}">
-                                <div class="row">
-                                  
-                                  <div class="col-md-12 form-group mb-3">
-                                    <label for="symptom" class="col-form-label">Triệu chứng</label>
-                                    <input type="text" class="form-control" name="symptom" id="symptom">
-                                  </div>
-                                </div>
-                                <input type="hidden" id="doctor_id" name="doctor_id" value="{{ doctor.id }}">
-                                <input type="hidden" id="exam_time_id" name="exam_time_id" value="{{ exam_time.id}}">
-                                <input type="hidden" id="exam_day" name="exam_day" value="{{exam_day}}">
-                                <div class="form-group">
-                                    <div class="col-sm-offset-2 col-sm-10">
-                                        <button class="btn btn-info" type="submit">Đăng ký</button>
+                            <div class="button-area">
+                              <form class="mb-5" method="post" action = "{{url_for('appointment.confirm_appoint')}}">
+                                  <div class="row">
+                                    
+                                    <div class="col-md-12 form-group mb-3">
+                                      <label for="symptom" class="col-form-label">Triệu chứng</label>
+                                      <input type="text" class="form-control" name="symptom" id="symptom">
                                     </div>
-                                </div>
+                                  </div>
+                                  <input type="hidden" id="doctor_id" name="doctor_id" value="{{ doctor.id }}">
+                                  <input type="hidden" id="exam_time_id" name="exam_time_id" value="{{ exam_time.id}}">
+                                  <input type="hidden" id="exam_day" name="exam_day" value="{{exam_day}}">
+                                  <div class="form-group d-flex">
+                                      <div class="col-sm-offset-2 col-sm-10">
+                                          <button class="btn btn-info" type="submit">Đăng ký</button>
+                                      </div>
+                                      
+                                  </div>
+                                  
+                              </form>
+                              <form class="mb-5 d-flex align-items-start flex-column" method="post" action = "{{url_for('appointment.book')}}">
+                                <input type="hidden" id="doctor_id" name="doctor_id" value="{{ doctor.id }}">
                                 
-                            </form>
+                                <div class="col-sm-offset-2 col-sm-10 ">
+                                  <button type = "submit" class="btn btn-info">Hủy</button>
+                                </div>
+                              </form>
+                            </div>
                
                 
                 </div>

@@ -1,0 +1,72 @@
+{% extends "layout/base.html" %}
+{% block extra_js %}
+    <script src="{{ url_for('static', filename='js/cashier.js') }}"></script>
+{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/cashier.css') }}">
+{% endblock %}
+{% block content%}
+
+
+<div class="invoice mt-5 mb-5">
+  <div class="header">
+      <h4>HÓA ĐƠN BÁN HÀNG</h4>
+      <p>(SALES INVOICE)</p>
+      <p>Ngày (date): {{medical_exam_info.exam_day.strftime('%d/%m/%Y')}}</p>
+  </div>
+  <div class="row">
+      <div class="col-8">
+          <strong>Tên đơn vị bán hàng (ComName):</strong> BỆNH VIỆN TƯ NHÂN<br>
+          <strong>Địa chỉ (Address):</strong>Đương Đào Sư Tích, Khu Dân Cư Lập Phúc, Huyện Nhà Bè Thành, Phố Hồ Chí Minh<br>
+          <strong>Số điện thoại (Tel):</strong> 84-235-3852648<br>
+          <strong>Số tài khoản (BankNo):</strong> 56210005881579<br>
+          <strong>Ngân hàng (BankName):</strong> Ngân hàng TMCP Đầu tư và Phát triển Việt Nam - BIDV<br>
+      </div>
+      <div class="col-4 text-end">
+          <strong>Ký hiệu (Series):</strong> 2K22TT<br>
+          <strong>Số (No):</strong> 0000000<br>
+          <img src="" alt="QR Code" style="height: 100px;">
+      </div>
+  </div>
+  <hr>
+  <strong>Họ tên bệnh nhân:</strong> {{medical_exam_info.patient_name}}<br>
+  <strong>Giới tính:</strong> {{medical_exam_info.patient_gender}}<br>
+  <strong>Ngày Sinh:</strong> {{medical_exam_info.patient_birthday.strftime('%d/%m/%Y')}}<br>
+  <strong>Chuẩn Đoán:</strong> <br>
+  <p>{{medical_exam_info.diagnosis}}</p>
+  <hr>
+  <table class="table table-bordered">
+      <thead>
+          <tr>
+              <th>STT (No.)</th>
+              <th>Tên hàng hóa, dịch vụ (Description)</th>
+              <th>Đơn vị tính (Unit)</th>
+              <th>Số lượng (Quantity)</th>
+              <th>Đơn giá (Unit Price)</th>
+              <th>Thành tiền (Amount)</th>
+          </tr>
+      </thead>
+      <tbody>
+        {%for med in medical_exam_info.med_list%}
+          <tr>
+              <td>{{loop.index}}</td>
+              <td>{{med.name}}</td>
+              <td>{{med.unit}}</td>
+              <td>{{med.quantity}}</td>
+              <td>{{med.unit_price}}</td>
+              <td>{{med.price}}</td>
+          </tr>
+        {%endfor%}
+      </tbody>
+  </table>
+  <p><strong>Tổng cộng tiền thanh toán (Total Payment):</strong> {{total}}</p>
+  <p><strong>Số tiền viết bằng chữ (Total amount in words):</strong> {{total_in_word}}</p>
+  <div class="row mt-5">
+      
+      <div class="col-12 text-center">
+        <div id = "medicalExamId"  data-medical-exam-id ="{{medical_exam_info.id}}"></div>
+        <button type="button" id ="confirmPayBtn" class="btn btn-success">Thanh Toán</button>
+      </div>
+  </div>
+</div>
+{%endblock%}

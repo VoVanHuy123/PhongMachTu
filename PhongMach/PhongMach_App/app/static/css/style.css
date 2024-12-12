@@ -356,4 +356,75 @@ label.error {
   font-weight: bold;
   font-size: 12px;
   color: #000; }
+
+
+
+#toast-container{
+  position: fixed;
+  /* background-color: red; */
+  z-index: 999999999;
+}
+.toastt {
+  min-width: 200px;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  color: white;
+  font-size: 14px;
+  opacity: 0.9;
+  animation: fadeInOut 4s ease forwards;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: block;
+}
+
+.toastt.success {
+    background-color: #28a745; /* Màu xanh */
+}
+
+.toastt.error {
+    background-color: #dc3545; /* Màu đỏ */
+}
+
+@keyframes fadeInOut {
+    0% {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    10%, 90% {
+        opacity: 0.9;
+        transform: translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+}
+
+/*trang history*/
+.detail-exam-body {
+  display: none; /* Ẩn mặc định */
+  margin-top: 10px;
+}
+
+.detail-exam-body .row {
+  margin-bottom: 10px;
+}
+
+#expan-icon {
+  cursor: pointer;
+}
+.pagination {
+  margin: 20px 0;
+}
+
+.pagination .page-item.disabled .page-link {
+  color: #bbb;
+  pointer-events: none;
+}
+
+.pagination .page-item.active .page-link {
+  background-color: #007bff;
+  border-color: #007bff;
+  color: white;
+}
   

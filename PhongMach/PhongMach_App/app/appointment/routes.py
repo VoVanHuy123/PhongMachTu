@@ -1,17 +1,18 @@
 from flask import Blueprint, render_template, request, redirect,url_for
 from app.models import Doctor, ExamTime,ExamSchedule
-from ..services.appointment_services import get_exam_time,add_apointment,add_exam_scheduled, get_exam_scheduled, check_existing_schedule
-import math
+from ..services.appointment_services import *
+from ..services.user_services import *
+from ..services.twillio_sms_services import *
 from config import Config
 from flask_login import current_user,login_required
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta, date,time
 from ..decorators import role_required
 
 appointment = Blueprint('appointment', __name__, url_prefix='/appointment')
 
 
 @appointment.route('/')
-
+@role_required("patient")
 def appointment_main():
 
     if current_user.is_authenticated:
@@ -51,6 +52,7 @@ def book():
 
 
     doctor_id = request.form.get('doctor_id')
+    print(doctor_id)
     doctor = Doctor.query.get(doctor_id)
 
     # Lấy ngày hiện tại nếu không có ngày được chọn
@@ -71,6 +73,14 @@ def book():
     # Lấy danh sách giờ khám
     exam_times = get_exam_time()
 
+    exam_time_status = {}
+    current_time = today.time() if selected_day == today.date() else None  # Lấy giờ hiện tại nếu là hôm nay
+    for time in exam_times:
+        if current_time and time.start_time < current_time:
+            exam_time_status[time.id] = 'disabled'  # Đã qua nếu là ngày hôm nay
+        else:
+            exam_time_status[time.id] = 'enabled'  # Khả dụng
+
     # Lấy danh sách giờ đã được đặt cho bác sĩ trong ngày được chọn
     booked_times = ExamSchedule.query.filter_by(doctor_id=doctor_id, date=selected_day).all()
     booked_time_ids = [schedule.exam_time_id for schedule in booked_times]
@@ -83,6 +93,7 @@ def book():
         available_days=available_days,
         selected_day=selected_day,
         booked_time_ids=booked_time_ids,
+        exam_time_status =exam_time_status,
     )
 
 @appointment.route('/appoint/', methods=['GET', 'POST'])
@@ -109,11 +120,22 @@ def confirm_appoint():
             return redirect(url_for('auth.user_login'))
         else:
             doctor_id = request.form.get('doctor_id')
+            doctor = get_doctor_by_id(doctor_id)
             exam_time_id =request.form.get('exam_time_id')
             symptom = str(request.form.get('symptom'))
             exam_day = datetime.strptime(request.form.get('exam_day'),  "%Y-%m-%d %H:%M:%S").date()
             if not check_existing_schedule(exam_time_id,doctor_id,exam_day):
                 exam_registration = add_apointment(symptom=symptom, doctor_id=doctor_id, patient_id=current_user.user.id)
                 add_exam_scheduled(exam_time_id,doctor_id,exam_day, exam_registration.id)
+                
+                patient_phone = current_user.user.phone_numbers[0].number if current_user.user.phone_numbers else None
+                if patient_phone:
+                    international_phone_number = "+84" + patient_phone[1:]
+                    print(international_phone_number)
+                    message = f"Chúc mừng! Bạn đã đặt lịch khám với bác sĩ {doctor.first_name} {doctor.last_name} vào lúc {exam_registration.exam_schedule.exam_time.start_time.strftime('%H:%M')} ngày {exam_day.strftime('%d/%m/%Y')}. Triệu chứng: {symptom}"
+                    sms = send_sms( message)
+                    print(sms)
+                else:
+                    raise ValueError(f'No Phone Number')
             return redirect(url_for('appointment.appointment_main'))
     

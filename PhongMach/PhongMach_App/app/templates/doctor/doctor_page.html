@@ -1,5 +1,7 @@
 {% extends "layout/base.html" %}
-
+{% block extra_js %}
+    <script src="{{ url_for('static', filename='js/doctor_page.js') }}"></script>
+  {% endblock %}
 
 {% block content%}
 
@@ -73,16 +75,7 @@
                                 </td>
                             </tr>
                              {% endfor %}
-                            <tr class = "row-hover">
-                                <td>09:00</td>
-                                <td>Trần Thị B</td>
-                                <td>Hoàn thành</td>
-                            </tr>
-                            <tr class = "row-hover">
-                                <td>10:00</td>
-                                <td>Phạm Văn C</td>
-                                <td>Đang chờ</td>
-                            </tr>
+                           
                             
                         </tbody>
                     </table>
@@ -104,7 +97,7 @@
                                     
                                 </div>
                                 <div class="col-8 ">
-                                    <span id = "patient-name">Vox van huy</span>
+                                    <span id = "patient-name"></span>
                                     
                                 </div>
                             </div>
@@ -114,7 +107,7 @@
                                     
                                 </div>
                                 <div class="col-8 ">
-                                    <span id = "patient-gender">Vox van huy</span>
+                                    <span id = "patient-gender"></span>
                                     
                                 </div>
                             </div>
@@ -124,7 +117,7 @@
                                     
                                 </div>
                                 <div class="col-8 ">
-                                    <span id = "patient-birth-day">Vox van huy</span>
+                                    <span id = "patient-birth-day"></span>
                                     
                                 </div>
                             </div>
@@ -135,25 +128,29 @@
                     </div>
                         <div class="mb-2">
                             <label for="phone" class="form-label">Số điện thoại</label>
-                            <input type="text" class="form-control" id="phone" placeholder="Nhập số điện thoại">
+                            <input disabled type="text" class="form-control" id="phone" >
                         </div>
                         <div class="mb-2">
                             <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email" placeholder="Nhập email">
+                            <input disabled type="email" class="form-control" id="email" >
                         </div>
                         <div class="mb-3">
                             <label for="symptoms" class="form-label">Triệu chứng</label>
-                            <textarea class="form-control" id="symptoms" rows="3" placeholder="Mô tả triệu chứng"></textarea>
+                            <textarea disabled class="form-control" id="symptoms" rows="3" ></textarea>
                         </div>
-                        <form method = "post" action ="{{url_for('doctor_user.create_medical')}}">
+                        <input type="hidden" class="form-control" id="urlForCreateMedical"  value = "{{url_for('doctor_user.create_medical')}}">
+                        <input type="hidden" class="form-control" id="urlForPatientHistory"  value = "{{url_for('auth.patient_history')}}">
+                        <form id ="createMedExamForm" method = "post" action ="">
                             <input type="hidden" class="form-control" id="patient-id" name ="patient_id" value = "">
                             <input type="hidden" class="form-control" id="exam-dayy" name ="exam_dayy" value = "">
                             <input type="hidden" class="form-control" id="exam-registration-id" name ="exam_registration_id" value = "">
-                            <div class="d-grid gap-2">
-                                <button  type="submit" class="btn btn-primary">Lập phiếu khám</a>
-                                <button type="button" class="btn btn-secondary">Lịch sử khám</button>
-                            </div>
+                            
                         </form>
+                        <div class="d-grid gap-2">
+                                
+                            <button id="createMedicalExam"  class="btn btn-success ">Lập phiếu khám</button>
+                            <a id="medicHistoryButton" type="button" class="btn btn-info d-flex text-center justify-content-center align-items-center" >Lịch sử khám</a>
+                        </div>
                 </div>
             </div>
         </div>

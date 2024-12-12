@@ -1,1 +1,1 @@
-from .admin import init_admin
+from .admin_view import init_admin

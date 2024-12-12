@@ -1,0 +1,10 @@
+{% extends 'admin/master.html' %}
+{% block body %}
+<div class="container">
+    <canvas id="myChart"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script type="module" src="{{ url_for('static', filename='js/chartJs.js') }}"></script>
+
+{% endblock %}

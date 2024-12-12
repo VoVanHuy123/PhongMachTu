@@ -1,0 +1,254 @@
+{% extends "layout/base.html"%}
+{% block content %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/doctor.css') }}">
+{% endblock %}
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/user.js') }}"></script>
+{% endblock %}
+
+
+
+
+
+
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+    
+                        <div class="card-body">
+                            <div class="card-title mb-4">
+                                <div class="d-flex ">
+                                    <div class="image-container">
+                                        <img src="{{doctor.image}}" id="imgProfile" style="width: 150px; height: 150px" class="img-thumbnail" />
+                                        <div class="middle">
+                                            <input type="button" class="btn btn-secondary" id="btnChangePicture" value="Change" />
+                                            <input type="file" style="display: none;" id="profilePicture" name="file" />
+                                        </div>
+                                    </div>
+                                    <div class="userData ml-3">
+                                        <h2 class="d-block" style="font-size: 1.5rem; font-weight: bold"><a href="javascript:void(0);">{{doctor.last_name}} {{doctor.first_name}}</a></h2>
+                                        <h6 class="d-block"><a href="javascript:void(0)">1,500</a> Video Uploads</h6>
+                                        <h6 class="d-block"><a href="javascript:void(0)">300</a> Blog Posts</h6>
+                                    </div>
+                                    
+                                </div>
+                                <div class="ml-auto">
+                                    {%if current_user.is_authenticated and current_user.user.role == "doctor"%}
+                                    <a type = "button" class="btn btn-small btn-block btn-success text-center d-flex justify-content-center align-items-center" data-bs-toggle="modal" data-bs-target="#editUserModal">Edit</a>
+                                    {% else %}
+                                    <form class = "d-flex" method="POST" action="{{ url_for('appointment.book') }}">
+                                        <input type="hidden" name="doctor_id" value="{{doctor.id}}" />
+                                        <button type = "submit" data-mdb-button-init data-mdb-ripple-init class="btn btn-outline-primary btn-sm mt-2 d-flex flex-fill align-items-center justify-content-center" >
+                                        Book Appointment
+                                        </button>
+                                    </form>
+                                    
+                                    {%endif%}
+                                </div>
+                            </div>
+    
+                            <div class="row">
+                                <div class="col-12">
+                                    <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
+                                        <li class="nav-item">
+                                            <a class="nav-link active" id="basicInfo-tab" data-toggle="tab" href="#basicInfo" role="tab" aria-controls="basicInfo" aria-selected="true">Basic Info</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" id="connectedServices-tab" data-toggle="tab" href="#connectedServices" role="tab" aria-controls="connectedServices" aria-selected="false">Connected Services</a>
+                                        </li>
+                                    </ul>
+                                    <div class="tab-content ml-1" id="myTabContent">
+                                        <div class="tab-pane fade show active" id="basicInfo" role="tabpanel" aria-labelledby="basicInfo-tab">
+                                            
+    
+                                            <div class="row">
+                                                <div class="col-sm-3 col-md-2 col-5">
+                                                    <label style="font-weight:bold;">Full Name</label>
+                                                </div>
+                                                <div class="col-md-8 col-6">
+                                                    {{doctor.last_name}} {{doctor.first_name}}
+                                                </div>
+                                            </div>
+                                            <hr />
+    
+                                            <div class="row">
+                                                <div class="col-sm-3 col-md-2 col-5">
+                                                    <label style="font-weight:bold;">Birth Date</label>
+                                                </div>
+                                                <div class="col-md-8 col-6">
+                                                    {{doctor.birth_day}}
+                                                </div>
+                                            </div>
+                                            <hr />
+                                            
+                                            
+                                            <div class="row">
+                                                <div class="col-sm-3 col-md-2 col-5">
+                                                    <label style="font-weight:bold;">Something</label>
+                                                </div>
+                                                <div class="col-md-8 col-6">
+                                                    Something
+                                                </div>
+                                            </div>
+                                            <hr />
+                                            <div class="row">
+                                                <div class="col-sm-3 col-md-2 col-5">
+                                                    <label style="font-weight:bold;">Something</label>
+                                                </div>
+                                                <div class="col-md-8 col-6">
+                                                    Something
+                                                </div>
+                                            </div>
+                                            <hr />
+                                            <div class="row">
+                                                <div class="col-sm-3 col-md-2 col-5">
+                                                    <label style="font-weight:bold;">Something</label>
+                                                </div>
+                                                <div class="col-md-8 col-6">
+                                                    Something
+                                                </div>
+                                            </div>
+                                            <hr />
+    
+                                        </div>
+                                        <div class="tab-pane fade" id="connectedServices" role="tabpanel" aria-labelledby="ConnectedServices-tab">
+                                            Facebook, Google, Twitter Account that are connected to this account
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+    
+    
+                        </div>
+    
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        {% if current_user.is_authenticated and current_user.user.role == "doctor"%}
+
+        <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editUserModalLabel">Cập Nhật Thông Tin</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editUserForm">
+                            <div class="row">
+                                <!-- User Name -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="username" class="form-label">Họ:</label>
+                                    <input type="text" id="Username" name="user_name" class="form-control" placeholder="Nhập username" value="{{ current_user.user_name}}">
+                                </div>
+                                <!-- Pass Word -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="password" class="form-label">Tên:</label>
+                                    <input type="text" id="Password" name="password" class="form-control" placeholder="Nhập password" value="{{ current_user.password }}">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <!-- First Name -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="firstName" class="form-label">Họ:</label>
+                                    <input type="text" id="firstName" name="first_name" class="form-control" placeholder="Nhập họ" value="{{ current_user.user.first_name }}">
+                                </div>
+                                <!-- Last Name -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="lastName" class="form-label">Tên:</label>
+                                    <input type="text" id="lastName" name="last_name" class="form-control" placeholder="Nhập tên" value="{{ current_user.user.last_name }}">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <!-- Email -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="email" class="form-label">Email:</label>
+                                    <input type="email" id="email" name="email" class="form-control" placeholder="Nhập email" value="{{ current_user.user.email }}">
+                                </div>
+                                <!-- Phone Number -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="phoneNumber" class="form-label">Số Điện Thoại:</label>
+                                    <input type="text" id="phoneNumber" name="phone_number" class="form-control" placeholder="Nhập số điện thoại"  value = "{{phone_number}}">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <!-- specialty -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="specialty" class="form-label">Chuyên Ngành:</label>
+                                    <input type="email" id="specialty" name="specialty" class="form-control"  value="{{ current_user.user.specialty }}">
+                                </div>
+                                <!-- current_workplace -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="currentWorkplace" class="form-label">Nơi làm việc hiện tại</label>
+                                    <input type="text" id="currentWorkplace" name="current_workplace" class="form-control" placeholder="Nhập số điện thoại"  value = "{{current_user.user.current_workplace}}">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <!-- degree -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="degree" class="form-label">Bằng cấp:</label>
+                                    <input type="email" id="degree" name="degree" class="form-control"  value="{{ current_user.user.degree }}">
+                                </div>
+                                <!-- Gender -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="gender" class="form-label">Giới Tính:</label>
+                                    <select id="gender" name="gender" class="form-select">
+                                        <option value="Male" {% if current_user.user.gender == "Male" %}selected{% endif %}>Nam</option>
+                                        <option value="Female" {% if current_user.user.gender == "Female" %}selected{% endif %}>Nữ</option>
+                                        <option value="Other" {% if current_user.user.gender == "Other" %}selected{% endif %}>Khác</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <!-- Profile Picture -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="image" class="form-label">Ảnh Đại Diện:</label>
+                                    <input type="file" id="profilePicture" name="image" class="form-control">
+                                </div>
+                                <!-- Birth Date -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="birthDay" class="form-label">Ngày Sinh:</label>
+                                    <input type="date" id="birthDate" name="birth_day" class="form-control" value="{{ current_user.user.birth_day }}">
+                                </div>
+                            </div>
+                            <div class="row">
+                                
+                                <!-- Birth Date -->
+                                <div class="col-md-12 mb-3">
+                                    <label for="experience" class="form-label">Kinh nghiệm</label>
+                                    <input type="text" id="experience" name="experience" class="form-control" value="{{ current_user.user.experience }}">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        <button type="button" id="saveDoctorChangesButton" class="btn btn-primary">Lưu Thay Đổi</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif%}
+{% endblock %}

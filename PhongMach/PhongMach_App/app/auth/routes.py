@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template,request,redirect, url_for,jsonify
-from ..services.user_services import add_user_default,check_login, get_user_account_by_id
+from ..services.user_services import *
 from ..services.appointment_services import *
+from ..services.medical_services import *
 from app.extensions import db, login_manager
 from datetime import datetime
 import cloudinary.uploader
@@ -21,11 +22,16 @@ def user_login():
         if user_account and user_account.user.role == 'patient':
             login_user(user_account)#ghi nhận biến toàn cục user
             return redirect(url_for('main.index'))
+        elif user_account and user_account.user.role == 'doctor':
+            login_user(user_account)#ghi nhận biến toàn cục user
+            return redirect(url_for('doctor_user.doctor_user_run'))
+        elif user_account and user_account.user.role == 'admin':
+            login_user(user_account)#ghi nhận biến toàn cục user
+            return redirect('/admin')
+        elif user_account and user_account.user.role == 'cashier':
+            login_user(user_account)#ghi nhận biến toàn cục user
+            return redirect('/cashier')
         else:
-            if user_account and user_account.user.role == 'doctor':
-                login_user(user_account)#ghi nhận biến toàn cục user
-                return redirect(url_for('doctor_user.doctor_user_run'))
-            else:
                 err_msg = "username or password is incorrcet"
     return render_template('auth/login.html',err_msg = err_msg)
 
@@ -86,7 +92,6 @@ def user_register():
     return render_template('auth/register.html', err_msg = err_msg)
 
 @auth.route('/user_page')
-
 def user_page():
     page = request.args.get('page', 1, type=int)  # Lấy trang hiện tại từ URL (mặc định là trang 1)
     per_page = 5  
@@ -104,3 +109,84 @@ def user_page():
     } for exam_regis in pagination.items]  # .items chứa các đối tượng trong trang hiện tại
 
     return render_template('auth/user_page.html',exam_registrations=exam_registrations,pagination=pagination)
+
+@auth.route('/edit_user',methods=['POST','GET'])
+def edit_user_info():
+    try:
+        data = get_user_form_data(request)
+        
+        update_user_info(current_user.user, data)
+        
+        if data['phone_number']:
+            current_user.user.phone_numbers[0].number = data['phone_number']
+        if data['image']:
+            try:
+                res = cloudinary.uploader.upload(data['image'])
+                image_path = res['secure_url']
+                current_user.user.image = image_path
+            except Exception as e:
+                return jsonify({'success': False, 'message': f'Upload ảnh thất bại: {str(e)}'}), 500
+
+        db.session.commit()
+        return jsonify({'success': True}),200
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+    
+@auth.route('/patient_history',methods=['GET', 'POST'])
+def patient_history():
+    # Lấy patient_id từ form hoặc query string
+    patient_id = request.args.get('patient_id') or request.form.get('patient_id')
+    page = request.args.get('page', 1, type=int)
+    
+    # Lấy ngày bắt đầu và kết thúc từ request
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
+
+    # Query cơ bản
+    query = get_medical_exams_by_patient_id(patient_id)
+
+    # Lọc theo ngày nếu có
+    if start_date:
+        start_date = datetime.strptime(start_date, '%Y-%m-%d')
+        query = query.filter(MedicalExam.exam_day >= start_date)
+    if end_date:
+        end_date = datetime.strptime(end_date, '%Y-%m-%d')
+        query = query.filter(MedicalExam.exam_day <= end_date)
+
+    # Phân trang
+    medical_exams = query.paginate(page=page, per_page=6, error_out=False)
+
+    # Lấy thông tin bệnh nhân
+    patient = get_patinent_by_id(patient_id)
+
+    return render_template(
+        '/auth/user_history.html',
+        patient=patient,
+        medical_exams=medical_exams,
+        start_date=start_date,
+        end_date=end_date
+    )
+
+@auth.route('/patient_exam_details',methods=['GET', 'POST'])
+def patient_exam_details():
+    data = request.get_json()
+    if not data or 'medical_exam_id' not in data:
+        return jsonify({'error': 'chưa nhận được dữ liệu'}), 400
+
+    medical_exam_id = data['medical_exam_id']
+    detail_exams = DetailExam.query.filter_by(medical_exam_id=medical_exam_id).all()
+
+    response_data = []
+    for detail in detail_exams:
+        medicine = get_medicine_by_id(detail.medicine_id)
+        unit = get_unit_by_id(detail.unit_id)
+        response_data.append({
+            'medicine_name': medicine.name,
+            'unit': unit.name if unit else 'Unknown',
+            'quantity': detail.quantity,
+            'instruct': detail.instruct
+        })
+
+    return jsonify(response_data)

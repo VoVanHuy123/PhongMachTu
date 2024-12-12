@@ -12,6 +12,7 @@
     {% block extra_css %}{% endblock %}
   </head>
 <body>
+  <div id="toast-container" ></div>
   {% block header %}
     {% include "layout/header.html" %}
   {% endblock%}
@@ -25,8 +26,8 @@
     {% include "layout/footer.html" %}
   {% endblock%}
   {% block extra_js %}
-    <script src="{{ url_for('static', filename='js/custom.js') }}"></script>
-  {% endblock %}
     
+  {% endblock %}
+  <script src="{{ url_for('static', filename='js/custom.js') }}"></script>
 </body>
 </html>

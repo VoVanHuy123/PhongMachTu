@@ -1,10 +1,11 @@
 {%extends "layout/base.html"%}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/appointment.css') }}">{% endblock %}
 {%block content%}
 <div class="container mt-5 mb-5">
     <div class="card doctor-card">
         <div class="row no-gutters">
             <div class="col-md-3">
-                <img src="{{ url_for('static', filename='img/' +  doctor.image) }}" class="card-img" alt="Doctor Image">
+                <img src="{{doctor.image}}" class="card-img" alt="Doctor Image">
             </div>
             <div class="col-md-9">
                 <div class="card-body">
@@ -13,8 +14,8 @@
                     <p class="card-text">Bác sĩ đang công tác tại {{doctor.current_workplace}}</p>
                     <p class="card-text">Bác sĩ nhận khám mọi lứa tuổi</p>
                     <p><i class="fas fa-map-marker-alt"></i> Hà Nội</p>
-                    <button class="btn btn-primary">Thích 0</button>
-                    <button class="btn btn-primary">Chia sẻ</button>
+                    <a type="button" href = "{{url_for('doctor_user.doctor_detail')}}" class="btn btn-primary">Hồ sơ</a>
+                    <a class="btn btn-primary">Chia sẻ</a>
                 </div>
             </div>
         </div>
@@ -60,10 +61,10 @@
                     <div class="schedule d-flex flex-wrap ">
                         {% for time in exam_times %}
     
-                        <div class="col-2 mb-3">
-                            <button type="button" class="btn btn-light w-100 time-slot" 
+                        <div class="col-2 mb-3 >">
+                            <button type="button" class="btn w-100 time-slot {% if time.id in booked_time_ids or exam_time_status[time.id] == 'disabled' %}is-booked {%else%}btn-success{% endif %}" 
                                     onclick="document.getElementById('exam_time_id').value = '{{ time.id }}'; this.form.submit();"
-                                    {% if time.id in booked_time_ids %}disabled{% endif %}>
+                                    {% if time.id in booked_time_ids or exam_time_status[time.id] == 'disabled' %}disabled{% endif %}>
                                     {{time.start_time.strftime("%H:%M")}} - {{time.end_time.strftime("%H:%M")}}
                             </button>
                         </div>

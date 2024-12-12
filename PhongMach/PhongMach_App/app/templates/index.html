@@ -18,9 +18,18 @@
                Installation
             </li>
           </ul>
-          <a href="{{url_for('appointment.appointment_main')}}" class="btn btn-light btn-bg btn-slide hover-slide-right mt-4">
-            <span>Book Appointment</span>
-          </a>
+          {%if current_user.is_authenticated %}
+            {%if current_user.user.role == "patient" %}
+
+            <a href="{{url_for('appointment.appointment_main')}}" class="btn btn-light btn-bg btn-slide hover-slide-right mt-4">
+              <span>Book Appointment</span>
+            </a>
+            {% endif %}
+            {%else%}
+            <a href="{{url_for('auth.user_login')}}" class="btn btn-light btn-bg btn-slide hover-slide-right mt-4">
+              <span>Book Appointment</span>
+            </a>
+          {%endif%}
         </div>
       </div>
       <div class="col-lg-6">

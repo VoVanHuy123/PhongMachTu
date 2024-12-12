@@ -72,6 +72,7 @@ def get_exam_chedule_by_doctor_id_and_date(doctor_id, target_date = datetime.now
             ExamSchedule.doctor_id == doctor_id,  # Lọc theo doctor_id
             ExamSchedule.date == target_date      # Lọc theo ngày
         )
+        .order_by(ExamTime.start_time)  
         .all()
     )
     
@@ -81,5 +82,10 @@ def get_exam_registration_by_patient_id(patient_id):
     return db.session.query(ExamRegistration).filter_by(patient_id=patient_id).all()
 
 def get_exam_registration_paginate_by_patient_id(patient_id, page=1, per_page=10):
-    return ExamRegistration.query.filter_by(patient_id=patient_id)\
+    
+    return ExamRegistration.query\
+        .join(ExamSchedule, ExamRegistration.exam_schedule)\
+        .join(ExamTime, ExamSchedule.exam_time)\
+        .filter(ExamRegistration.patient_id == patient_id)\
+        .order_by(ExamSchedule.date.desc(), ExamTime.start_time.desc())\
         .paginate(page=page, per_page=per_page, error_out=False)

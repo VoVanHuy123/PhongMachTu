@@ -1,0 +1,98 @@
+{% extends "layout/base.html"%}
+{% block content%}
+<div class="doctor_main mb-5">
+    <div class="container mt-4">
+        <!-- Date Section -->
+        <div class="row mb-3">
+            <div class="col">
+                
+                <form method = "post" action = "{{url_for('cashier.manager_run')}}" id="date-form">
+                    <div class="row">
+
+                        <div class="col-8 ">
+                            <input type="text" id="search-name" name="search_name" >
+                        </div>
+        
+                            <div class="col-2">
+                               <button type ="submit" class = "button button-success"> tìm kiếm</button>
+                            </div>
+                    </div>
+                    
+    
+                </form>
+                <form method = "post" action = "{{url_for('cashier.manager_run')}}" id="date-form">
+    
+    
+                    <input type="hidden" id="exam_day" name="exam_day" value="{{ selected_day or today.date() }}"> 
+    
+                        <div class="schedule-section">
+                            <label for="date-dropdown" class="me-2">Chọn ngày:</label>
+                            <select id="date-dropdown" class="form-select mb-3" name="exam_day" onchange ="updateExamDayAndSubmit(this.value)">
+                                {% for date in available_days%}
+                                <option value="{{date}}" {% if date == selected_day %}selected{% endif %}>
+                                    {{date.strftime('%d/%m/%Y')}}
+                                </option>
+                                {%endfor%}
+                                    
+                            </select>
+                        </div>
+                    
+    
+                </form>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="row">
+            <!-- Left Section: Appointment List -->
+            <div class="col-md-12">
+                <div class="table-responsive">
+                    <table class="table table-bordered text-center">
+                        <thead class="table-secondary">
+                            
+                            <tr>
+                                <th>STT</th>
+                                <th>Tên bệnh nhân</th>
+                                <th>Bác sĩ khám</th>
+                                <th>Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for medical_info in medical_infos %}
+                            <tr class = "row-hover"  >
+
+                                <td class = "text-center ">{{loop.index}}</td>
+                                <td class = "text-center ">{{medical_info.patient_name}}</td>
+                                <td>{{medical_info.doctor_name}}</td>
+                                <td class = "text-center ">
+                                    {% if medical_info.is_pay == False%}
+                                    <form method = "POST" action = "{{url_for('cashier.detail_bill')}}">
+                                        <input type = "hidden" name = "medical_exam_id" value = "{{medical_info.id}}">
+                                        <button type="submit" class="btn btn-warning">Thanh toán</button>
+                                    </form>
+                                    {%else%}
+                                    <button type="button" class="btn btn-success"><i class="bi bi-check2-all"></i> Đã Thanh Toán</button>
+                                    {%endif%}
+                                </td>
+                            </tr>
+                            {%endfor%}
+                           
+                        </tbody>
+                    </table>
+
+                    <!--pagination-->
+                    
+                    <!--end pagination-->
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+          
+            
+<!-- https://via.placeholder.com/100 -->
+
+{%endblock%}
