@@ -91,7 +91,7 @@ class ExamSchedule(db.Model):
 class ExamRegistration(db.Model): 
     id = Column(Integer, primary_key=True, )
     symptom = Column(String(255), nullable = True)
-    exam_schedule = relationship("ExamSchedule", backref="exam_registration", uselist=False)
+    exam_schedule = relationship("ExamSchedule", backref="exam_registration",cascade='all, delete-orphan', uselist=False)
     patient_id = Column(Integer, ForeignKey('patient.id'),nullable = False)
     doctor_id = Column(Integer, ForeignKey('doctor.id'),nullable = False)
     is_waiting = Column(Boolean, default=True)
@@ -182,6 +182,7 @@ class Bill(db.Model):
     id = Column(Integer, primary_key=True)
     exam_fee = Column(Float, nullable=True, default=0)
     is_pay = Column(Boolean, default=False)
+    total = Column(Float, nullable=True, default=0)
     medical_exam_id = Column(Integer, ForeignKey("medical_exam.id", ondelete="CASCADE"), nullable=False)
     patient_id = Column(Integer, ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
 

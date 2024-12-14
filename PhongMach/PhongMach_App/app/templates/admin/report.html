@@ -3,8 +3,106 @@
 <div class="container">
     <canvas id="myChart"></canvas>
 </div>
+<button type="button" class="btn btn-primary" onclick="drawChart()">Xem biểu đồ</button>
+<div class="">
+    {{doanh_thu}}
+</div>
+<div class="container mt-4">
+    <!-- Báo cáo doanh thu -->
+    <div class="mb-4 border container p-4 m-5">
+        <h5 class="text-center">BÁO CÁO DOANH THU THEO THÁNG</h5>
+        <form method="GET" action="">
+            
+            <label for="month">Chọn tháng:</label>
+            <select id="month" name="month" class="form-control d-inline-block w-auto">
+                {% for m in range(1, 13) %}
+                    <option value="{{ m }}" {% if m == month %}selected{% endif %}>Tháng {{ m }}</option>
+                {% endfor %}
+            </select>
+            <label for="year">Chọn năm:</label>
+            <input type="number" id="year" name="year" class="form-control d-inline-block w-auto" value="{{ year }}" min="2000" max="2100">
+            <input type="hidden" name="category" value="{{ request.args.get('category', category) }}">
+            <button type="submit" class="btn btn-primary">Xem báo cáo</button>
+            
+        </form>
+        <hr>
 
+
+            <div class="container">
+                <div class="head-report"></div>
+            </div>
+        
+        
+            <table  class="table table-bordered text-center ">
+                <thead>
+                    <tr>
+                        <th>Ngày</th>
+                        <th>Số bệnh nhân</th>
+                        <th>Doanh thu</th>
+                    </tr>
+                </thead>
+                
+                    <tbody >
+                        {%for i in range(days_in_month)%}
+                        <tr>
+                            <td>{{loop.index}}</td>
+                            <td>{{patient_report.patient_counts[i]}}</td>
+                            {% if patient_report.daily_total_list[i] > 0 %}
+                            <td>{{patient_report.daily_total_list[i]|format_currency}} đ</td>
+                            {%else%}
+                            <td>{{patient_report.daily_total_list[i]}}</td>
+                            {%endif%}
+                        </tr>
+                    
+                        {% endfor %}
+                    </tbody>
+                
+            </table>
+        
+        <p><strong>Tổng doanh thu:</strong> .................{{patient_report.month_total|format_currency}} VND.................</p>
+    </div>
+
+    <!-- Báo cáo sử dụng thuốc -->
+    <div class = "border container p-4 m-5">
+        <h5 class="text-center">BÁO CÁO SỬ DỤNG THUỐC</h5>
+        <form method="GET" action="">
+            <input type="hidden" name="month" value="{{ request.args.get('month', month) }}">
+            <input type="hidden" name="year" value="{{ request.args.get('year', year) }}">
+            <label for="category">Chọn tháng:</label>
+            <select id="category" name="category" class="form-control d-inline-block w-auto">
+                {% for cate in medicine_report.categories %}
+                    <option value="{{ cate.id }}" {% if cate.id == category %}selected{% endif %} >{{ cate.name }}</option>
+                {% endfor %}
+            </select>
+            
+            <button type="submit" class="btn btn-primary">Xem báo cáo</button>
+        </form>
+        <p>Tháng: ………………</p>
+        <table class="table table-bordered text-center">
+            <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>Thuốc</th>
+                    
+                    <th>Số lượng</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for medicine in medicine_report.medicine_sold %}
+                
+                <tr>
+                    <td>{{loop.index}}</td>
+                    <td>{{medicine.medicine_name}}</td>
+                    <td>{{medicine.total_quantity}}</td>
+                    
+                </tr>
+                {% endfor %}
+                
+            </tbody>
+        </table>
+    </div>
+</div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-<script type="module" src="{{ url_for('static', filename='js/chartJs.js') }}"></script>
+<script  src="{{ url_for('static', filename='js/chartJs.js') }}"></script>
 
 {% endblock %}

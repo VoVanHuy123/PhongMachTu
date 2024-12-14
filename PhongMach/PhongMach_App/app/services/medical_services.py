@@ -79,7 +79,8 @@ def update_inventory(medicine, unit_id, quantity):
     convert_units = get_unit_convert_list_by_medicine_id(medicine.id)
     med_unit = get_medicice_unit_by_med_and_unit_id(medicine.id, unit_id)
     if med_unit.is_default:
-        medicine.inventory -= quantity
+        if is_enough_inventory(medicine , quantity):
+            medicine.inventory -= quantity
     else:
         for convert in convert_units:
             if unit_id == convert.target_unit_id:
@@ -309,7 +310,7 @@ def convert_number_to_words(number):
                 result += units[units_digit]
         else:
             if units_digit != 0:
-                result += "lẻ " + units[units_digit]
+                result += units[units_digit]
         return result.strip()
 
     if number == 0:

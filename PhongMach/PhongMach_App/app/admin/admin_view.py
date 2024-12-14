@@ -3,12 +3,13 @@ from flask_admin import Admin, expose,BaseView
 from flask_admin.contrib.sqla import ModelView
 from app.models import   Medicine, Category ,Unit,MedicineUnit,UnitConvert,MedicalExam,DetailExam,ExamRegistration,ExamSchedule,ExamTime,User,Regulation,Bill
 from app.extensions import db
-from flask_admin.form import rules
-from flask_wtf import FlaskForm
 from wtforms import SelectField
 from flask import request,redirect,render_template
 from ..services.medical_services import *
 from ..services.user_services import *
+from ..services.report_services import *
+from datetime import date
+from calendar import monthrange,calendar
 
 
 
@@ -215,9 +216,65 @@ class RegiterView(BaseView):
         return self.render('admin/admin_register.html')
     
 class ReportView(BaseView):
-    @expose('/', methods = ['POST', 'GET'])
-    def report(self):
-        return self.render('admin/report.html')
+    @expose('/', methods=['GET'])
+    def report(self, **kwargs):  # Thêm **kwargs để nhận các tham số bổ sung
+        # Nhận giá trị tháng và năm từ yêu cầu (mặc định là tháng 12 năm 2024)
+        current_date = datetime.now()
+        month = request.args.get('month', default=current_date.month, type=int)
+        year = request.args.get('year', default=current_date.year, type=int)
+        category = request.args.get('category', default=1,type=int)
+
+        # Tính tổng số ngày trong tháng đã chọn
+        days_in_month = monthrange(year, month)[1]
+        patient_counts = [count_patients_in_day(day,month,year) for day in range(1, days_in_month + 1)]
+        daily_total_list = [get_daily_revenue(day,month,year) for day in range(1, days_in_month + 1)]
+        month_total = 0
+        for total in daily_total_list:
+            month_total += total 
+        # Lấy số bệnh nhân cho từng ngày
+        patient_report = {
+            "patient_counts" : patient_counts,
+            "daily_total_list" : daily_total_list,
+            "month_total": month_total,
+        }
+        
+        medicine_sold = count_medicine_by_category(month,year,category)
+        categories = get_medicine_categories()
+        medicine_report = {
+            "medicine_sold" : medicine_sold,
+            "categories" : categories
+        }
+        # Trả về giao diện với dữ liệu
+        return self.render('admin/report.html', 
+                           days_in_month=days_in_month,
+                           patient_report=patient_report,
+                           month = month,
+                           year=year,
+                           category=category,
+                           medicine_report=medicine_report)
+    
+    @expose('/get_revenue_info', methods=['GET'])
+    def get_revenue_info(self, **kwargs):
+        try:
+            current_date = datetime.now()
+            month = request.args.get('month', default=12, type=int)
+            year = request.args.get('year', default=2024, type=int)
+
+            # Tính toán dữ liệu
+            moths_revenue = [get_monthly_revenue(i,year) for i in range(1,13)]
+            months = [
+                "January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"
+            ]
+            return jsonify({
+                'months': months,
+                'moths_revenue':moths_revenue,
+                'message': "oonr",
+            })
+        except Exception as e:
+            return jsonify({
+                'error': str(e)
+            }), 500
 
 def init_admin(app):
     """
@@ -228,6 +285,14 @@ def init_admin(app):
     admin.add_view(ModelView(Category, db.session))
     admin.add_view(ModelView(Unit, db.session))
     admin.add_view(ModelView(Regulation, db.session))
+    admin.add_view(ModelView(Bill, db.session))
+    admin.add_view(ModelView(MedicalExam, db.session))
+    admin.add_view(ModelView(User, db.session))
+    admin.add_view(ModelView(Account, db.session))
+    admin.add_view(ModelView(DetailExam, db.session))
+    admin.add_view(ModelView(ExamRegistration, db.session))
+    admin.add_view(ModelView(ExamSchedule, db.session))
+    
     admin.add_view(RegiterView(name='Regiter', endpoint='regiter'))
     admin.add_view(ReportView(name="Report", endpoint='report'))
     

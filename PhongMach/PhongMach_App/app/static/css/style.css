@@ -7,9 +7,9 @@ body {
   font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   color: #999;
   line-height: 2;
-  background-image: -webkit-linear-gradient(330deg, #66a6ff 0%, #89f7fe 100%);
+  /* background-image: -webkit-linear-gradient(330deg, #66a6ff 0%, #89f7fe 100%);
   background-image: -o-linear-gradient(330deg, #66a6ff 0%, #89f7fe 100%);
-  background-image: linear-gradient(120deg, #66a6ff 0%, #89f7fe 100%);
+  background-image: linear-gradient(120deg, #66a6ff 0%, #89f7fe 100%); */
 }
 /*Header======================================================*/
 .navbar-scroll .nav-link,
@@ -17,10 +17,16 @@ body {
 .navbar-scroll .navbar-brand {
   color: #262626;
 }
-
+#billboard{
+  background: url("../img/hero-bg.jpg") no-repeat center center;
+            background-size: cover;
+            height: 100vh;
+            color: white;
+}
 /* Color of the navbar BEFORE scroll */
 .navbar-scroll {
-  background-color: #f8f7ff;
+  background-color: #37517e;
+  color : #fff;
 }
 
 /* Color of the links AFTER scroll */
