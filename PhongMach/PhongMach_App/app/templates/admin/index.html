@@ -1,0 +1,223 @@
+{% extends 'admin/master.html' %}
+
+{% block body %}
+<div class="">
+    <div class="row">
+
+        <div class="col mb-4 border p-5">
+            <h5 class="text-center">SỐ LƯỢNG THUỐC</h5>
+            
+            <hr>
+    
+    
+                <div class="container">
+                    <div class="head-report"></div>
+                </div>
+                
+    
+                <div class="report-body container">
+                    <div class="row container">
+                        <div class="col-2  text-center p-2">Stt</div>
+                        <div class="col-5  text-center p-2">Loại thuốc</div>
+                        <div class="col-5  text-center p-2">Số lượng</div>
+                    </div>
+                    <div class="overflow-auto" style ="max-height : 100vh;">
+                       {% for num_med in num_med_of_category%}
+                        <div class="row container">
+                            <div class="col-2 border text-center p-2">{{loop.index}}</div>
+                            <div class="col-5 border text-center p-2">{{num_med.category_name}}</div>
+                            <div class="col-5 border text-center p-2">{{num_med.num}}</div>
+                        
+                           
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                </div>
+    
+        </div>
+        <div class="col">
+            <div class="container">
+                <canvas id="myChart"></canvas>
+            </div>
+            
+        </div>
+    </div>
+
+    <div class="col-12 mb-4 border p-5">
+        <h5 class="text-center">SỐ LƯỢNG THUỐC THEO DANH MỤC</h5>
+        <form method="GET" action="">
+            
+            <label for="month">Chọn loại thuốc:</label>
+            <select id="category" name="category" class="form-control d-inline-block w-auto">
+                {% for cate in categories %}
+                    <option value="{{ cate.id }}" {% if cate.id == selected_cate %}selected{% endif %}>{{ cate.name }}</option>
+                {% endfor %}
+            </select>
+           
+            <button onclick = "getMedOfCategory(event);"  class="btn btn-primary">Xem báo cáo</button>
+            
+        </form>
+        <hr>
+
+
+            <div class="container">
+                <div class="head-report"></div>
+            </div>
+            
+
+            <div class="report-body container">
+                <div class="row container">
+                    <div class="col-2  text-center p-2">stt</div>
+                    <div class="col-5  text-center p-2">Tên thuốc</div>
+                    <div class="col-3  text-center p-2">Đơn vị</div>
+                    <div class="col-2  text-center p-2">số lượng</div>
+                </div>
+                <div id = "med_list_container" class="overflow-auto" style ="max-height : 100vh;">
+                    {%for med in num_each_med_of_category%}
+                    <div class="row container">
+                        <div class="col-2 border text-center p-2">{{loop.index}}</div>
+                        <div class="col-5 border text-center p-2">{{med[1]}}</div>
+                        <div class="col-3 border text-center p-2">{{med[2]}}</div>
+                        <div class="col-2 border text-center p-2">{{med[3]}}</div>
+                       
+                    </div>
+                    {%endfor%}
+                </div>
+                
+            </div>
+
+        
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+<script>
+    let myChart = document.getElementById('myChart');
+    let med_name = [];
+    let med_data = [];
+    for(let med of {{num_med_of_category | tojson}}){
+        med_name.push(med.category_name);
+        med_data.push(med.num)
+    }
+    
+
+   
+    function drawChart(labels,data){
+        if (window.massPopChart) {
+            window.massPopChart.destroy();
+          }
+        Chart.defaults.font.family = 'Lato';
+        Chart.defaults.font.size = 18;
+        Chart.defaults.color = '#777';
+        window.massPopChart=new Chart(myChart, {
+            type:'polarArea', // bar, horizontalBar, pie, line, doughnut, radar, polarArea
+            data:{
+              labels:labels,
+              datasets:[{
+                label:'THỐNG KẾ THUỐC',
+                data:data,
+                //backgroundColor:'green',
+                backgroundColor:[
+                  'rgba(255, 99, 132, 0.6)',
+                  'rgba(54, 162, 235, 0.6)',
+                  'rgba(255, 206, 86, 0.6)',
+                  'rgba(75, 192, 192, 0.6)',
+                  'rgba(153, 102, 255, 0.6)',
+                  'rgba(255, 159, 64, 0.6)',
+                  'rgba(255, 99, 132, 0.6)',
+                  'rgba(255, 206, 86, 0.6)',
+                  'rgba(75, 192, 192, 0.6)',
+                  'rgba(153, 102, 255, 0.6)',
+                  'rgba(255, 159, 64, 0.6)',
+                  'rgba(255, 99, 132, 0.6)'
+                ],
+                borderWidth:1,
+                borderColor:'#777',
+                hoverBorderWidth:3,
+                hoverBorderColor:'#000'
+              }]
+            },
+            options:{
+              title:{
+                display:true,
+                text:'Largest Cities In Massachusetts',
+                fontSize:25
+              },
+              legend:{
+                display:true,
+                position:'right',
+                labels:{
+                  fontColor:'#000'
+                }
+              },
+              layout:{
+                padding:{
+                  left:50,
+                  right:0,
+                  bottom:0,
+                  top:0
+                }
+              },
+              tooltips:{
+                enabled:true
+              }
+            }
+        });
+    }
+
+    window.onload = function(){
+        drawChart(med_name,med_data);
+    }
+
+    async function getMedOfCategory(event) {
+        event.preventDefault();
+        let category = document.getElementById("category").value;
+        let medListContainer = document.getElementById("med_list_container")
+        
+        try {
+            const response = await fetch(`/admin/api/get_num_each_med_of_category`, {
+                method: 'POST',  // Đảm bảo là 'POST'
+                headers: {
+                    'Content-Type': 'application/json',  // Đảm bảo Content-Type là 'application/json'
+                },
+                body: JSON.stringify({
+                    "category": category  // Dữ liệu JSON
+                }),
+            });
+    
+            const result = await response.json();
+            
+            if (response.ok) {
+                const med_list = result.med_list;
+                console.log(med_list);
+                medListContainer.innerHTML=""
+                if (med_list.length > 0) {
+
+                    med_list.forEach((med, index) => {
+                        const medRow = document.createElement('div');
+                        medRow.className = 'row container';
+                        medRow.innerHTML = `
+                            <div class="col-2 border text-center p-2">${index + 1}</div>
+                            <div class="col-5 border text-center p-2">${med.name}</div>
+                            <div class="col-3 border text-center p-2">${med.unit}</div>
+                            <div class="col-2 border text-center p-2">${med.quantity}</div>
+                        `;
+                        medListContainer.appendChild(medRow);
+                    });
+                } else {
+                    const medRow = document.createElement('div');
+                    medRow.className = 'container text-center mt-5';
+                    medRow.innerHTML = `<h5>Không có thuốc nào</h5>`
+                    medListContainer.appendChild(medRow);
+                }
+            } else {
+                alert(result.error || 'Có lỗi xảy ra.');
+            }
+        } catch (error) {
+            console.error('Error:', error); // Log lỗi nếu có
+        }
+    }
+
+</script>
+{% endblock %}

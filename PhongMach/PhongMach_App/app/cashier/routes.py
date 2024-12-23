@@ -16,20 +16,36 @@ def manager_run():
         available_days = [(today + timedelta(days=i)).date() for i in range(-3,7)]
 
         selected_day = request.form.get('exam_day')
-
+        search_name = request.form.get('search_name') or request.args.get('search_name', '')
+        page = request.args.get('page', 1, type=int)
+        per_page = 8
         if not selected_day:
-            # Nếu không có ngày được gửi, mặc định là ngày hôm nay
-            selected_day = datetime.today().date()
+            selected_day = request.args.get("selected_day")
+            if selected_day:
+                selected_day = datetime.strptime(selected_day, "%Y-%m-%d").date()
+            else:
+                selected_day = today.date()  # Chuyển đổi `today` thành `datetime.date`
         else:
-        # Chuyển đổi chuỗi thành datetime.date
             selected_day = datetime.strptime(selected_day, "%Y-%m-%d").date()
         
+        if not search_name:
+            search_name = request.args.get("search_name","")
         
-        medical_exams = get_medical_exams_by_day(selected_day)
+        print(search_name)
+        print(selected_day)
+        # medical_exams = get_medical_exams_by_day(selected_day)
+        pagination =get_medical_exam_by_patient_name_and_day(search_name,selected_day).paginate(page=page, per_page=per_page, error_out=False)
+        
+        medical_exams = pagination.items
         medical_infos = [ get_detail_exam_by_medical_exam_id(med_exam.id) for med_exam in medical_exams]
 
         
-        return render_template('cashier/cashier_page.html',medical_infos=medical_infos,selected_day=selected_day,available_days=available_days)
+        return render_template('cashier/cashier_page.html',
+                               pagination=pagination,
+                               medical_infos=medical_infos,
+                               selected_day=selected_day,
+                               available_days=available_days,
+                               search_name=search_name)
     except Exception as e:
         print('Error' + str(e))
         return render_template('cashier/cashier_page.html')

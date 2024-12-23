@@ -36,34 +36,35 @@ class User(db.Model):
     phone_numbers = relationship('PhoneNumber',backref='user',  cascade='all, delete-orphan', lazy='dynamic')
     
     account_id = Column(Integer, ForeignKey('account.id', ondelete='CASCADE'), nullable=False, unique=True)
-    role = Column(String(50), nullable=False, default="user")  
-    bill = relationship('Bill',backref='user', cascade='all, delete-orphan', lazy='dynamic')
-    # __mapper_args__ = {
-    #     'polymorphic_identity': 'user',  
-    #     'polymorphic_on': role          
-    # }
+    role = Column(String(50), nullable=False, default="user")
+    role_mapper =Column(String(50), nullable=False, default="user")
+    
+    __mapper_args__ = {
+        'polymorphic_identity': 'user',  
+        'polymorphic_on': role_mapper          
+    }
     
 
 class Doctor(User):
     id = Column(Integer, ForeignKey('user.id', ondelete='CASCADE'), primary_key=True)
     specialty = Column(String(100), nullable=True) 
     degree = Column(String(100), nullable=True)  
-    experience = Column(String(100),nullable=True)
+    experience = Column(String(255),nullable=True)
     current_workplace = Column(String(100),nullable=True)
     exam_dates = relationship('ExamSchedule', backref='doctor', lazy=True)
 
-    # __mapper_args__ = {
-    #     'polymorphic_identity': 'doctor',  
-    # }
+    __mapper_args__ = {
+        'polymorphic_identity': 'doctor',  
+    }
 
 
 class Patient(User):
     id = Column(Integer, ForeignKey('user.id', ondelete='CASCADE'), primary_key=True)
     insurance_number = Column(String(50), unique=True, nullable=True)
-
-    # __mapper_args__ = {
-    #     'polymorphic_identity': 'patient',  
-    # }
+    bill = relationship('Bill',backref='patient', cascade='all, delete-orphan', lazy='dynamic')
+    __mapper_args__ = {
+        'polymorphic_identity': 'patient',  
+    }
     
 
 
@@ -143,6 +144,7 @@ class MedicineUnit(db.Model):
 class Category(db.Model):
     id = Column(Integer, primary_key=True)
     name = Column(String(100), nullable=False)
+    
     def __str__(self):
         return self.name
     
@@ -161,7 +163,7 @@ class Medicine(db.Model):
     id = Column(Integer, primary_key=True)
     name = Column(String(100), nullable=False)
     inventory = Column(Float, nullable=False, default=0)
-    categories = relationship("Category", secondary=med_category, lazy="subquery", backref=backref('medicine', lazy=True))
+    categories = relationship("Category", secondary=med_category, lazy="subquery", backref=backref('medicines', lazy=True))
     units = relationship("MedicineUnit", backref="medicine", cascade='all, delete-orphan', lazy='dynamic')
     unit_convert = relationship("UnitConvert",backref="medicine",cascade='all, delete-orphan', lazy='dynamic')
 
@@ -175,7 +177,6 @@ class UnitConvert(db.Model):
     med_id = Column(Integer, ForeignKey("medicine.id", ondelete="CASCADE"), nullable=False)
     default_unit_id = Column(Integer, ForeignKey("unit.id"))
     target_unit_id = Column(Integer, ForeignKey("unit.id"))
-    
     convert_rate = Column(Float, nullable=False, default=1)
 
 class Bill(db.Model):
@@ -184,7 +185,8 @@ class Bill(db.Model):
     is_pay = Column(Boolean, default=False)
     total = Column(Float, nullable=True, default=0)
     medical_exam_id = Column(Integer, ForeignKey("medical_exam.id", ondelete="CASCADE"), nullable=False)
-    patient_id = Column(Integer, ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
+    patient_id = Column(Integer, ForeignKey("patient.id", ondelete="CASCADE"), nullable=False)
+    created_date = Column(DateTime, default=datetime.now())
 
 class Regulation(db.Model):
     id = Column(Integer, primary_key=True)

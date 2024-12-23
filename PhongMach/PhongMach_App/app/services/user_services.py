@@ -40,6 +40,7 @@ def add_user_default(first_name, last_name, user_name, password, email, phone_nu
                 image = kwargs.get('image'),
                 account_id = account.id,
                 role = 'patient',
+                role_mapper = 'patient',
                 insurance_number = insurance_number,
         
             )
@@ -81,7 +82,9 @@ def add_user(first_name, last_name, user_name,password,role, gender,**kwargs):
             db.session.flush()
        
         if role == 'doctor':
+            user.role_mapper = "doctor"
             doctor = Doctor(id = user.id)
+            
             db.session.add(doctor)
             db.session.flush()
        
@@ -109,12 +112,16 @@ def update_user_info(user,data):
     else:
         user.birth_day = None
 
-def update_doctor_user_info(user,data):
-    update_user_info(user,data)
-    user.specialty = data['specialty']
-    user.degree = data['degree']
-    user.experience = data['experience']
-    user.current_workplace = data['current_workplace']
+def update_doctor_user_info(user, data):
+    try:
+        user.specialty = data.get('specialty', user.specialty)
+        user.degree = data.get('degree', user.degree)
+        user.experience = data.get('experience', user.experience)
+        user.current_workplace = data.get('current_workplace', user.current_workplace)
+        # Lưu thay đổi
+        db.session.commit()
+    except:
+        db.session.rollback()
     
 def get_user_form_data(request):
     """
@@ -143,6 +150,18 @@ def get_user_account_form_data(request):
     form_data = {
         'user_name': request.form.get('user_name'),
         'password': request.form.get('password'),
+        'new_password': request.form.get('new_password'),
+        'confirm_new_password': request.form.get('confirm_new_password'),
     }
     return form_data
+
+
+def update_user_account(account,data):
+    password = str(hashlib.md5((data['new_password']).strip().encode('utf-8')).hexdigest())
+    try:
+        account.user_name = data['user_name'],
+        account.password = password,
+        db.session.commit()
+    except:
+        db.session.rollback()
 

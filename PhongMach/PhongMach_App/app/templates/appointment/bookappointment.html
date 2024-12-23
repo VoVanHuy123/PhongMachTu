@@ -1,5 +1,8 @@
 {%extends "layout/base.html"%}
 {% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/appointment.css') }}">{% endblock %}
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/appointment.js') }}"></script>
+  {% endblock %}
 {%block content%}
 <div class="container mt-5 mb-5">
     <div class="card doctor-card">
@@ -13,9 +16,6 @@
                     <p class="card-text">{{doctor.experience}}</p>
                     <p class="card-text">Bác sĩ đang công tác tại {{doctor.current_workplace}}</p>
                     <p class="card-text">Bác sĩ nhận khám mọi lứa tuổi</p>
-                    <p><i class="fas fa-map-marker-alt"></i> Hà Nội</p>
-                    <a type="button" href = "{{url_for('doctor_user.doctor_detail')}}" class="btn btn-primary">Hồ sơ</a>
-                    <a class="btn btn-primary">Chia sẻ</a>
                 </div>
             </div>
         </div>
@@ -25,14 +25,14 @@
 
             <div class="schedule-section">
 
-                <form method = "post" action = "{{url_for('appointment.book')}}" id="date-form">
+                <form method = "post" action = "{{url_for('appointment.book')}}" id="date-form" class="mt-3">
     
     
                     <input type="hidden" id="doctor_id" name="doctor_id" value="{{ doctor.id }}">
     
                         <div class="schedule-section">
                             <label for="date-dropdown" class="me-2">Chọn ngày:</label>
-                            <select id="date-dropdown" class="form-select mb-3" name="exam_day" onchange ="updateExamDayAndSubmit(this.value)">
+                            <select id="date-dropdown" class="form-select mb-3" name="exam_day" onchange ="examTimeRender(this.value)">
                                 {% for date in available_days%}
                                 <option value="{{date}}" {% if date == selected_day %}selected{% endif %}>
                                     {{date.strftime('%d/%m/%Y')}}
@@ -50,7 +50,7 @@
 
 
 
-            <form method = "post" action = "{{url_for('appointment.appoint_detail')}}">
+            <form id ="appoint_detail_form" method = "post" action = "{{url_for('appointment.appoint_detail')}}">
 
 
                 <input type="hidden" id="doctor_id" name="doctor_id" value="{{ doctor.id }}">
@@ -59,16 +59,20 @@
                 
 
                     <div class="schedule d-flex flex-wrap ">
-                        {% for time in exam_times %}
-    
-                        <div class="col-2 mb-3 >">
-                            <button type="button" class="btn w-100 time-slot {% if time.id in booked_time_ids or exam_time_status[time.id] == 'disabled' %}is-booked {%else%}btn-success{% endif %}" 
-                                    onclick="document.getElementById('exam_time_id').value = '{{ time.id }}'; this.form.submit();"
-                                    {% if time.id in booked_time_ids or exam_time_status[time.id] == 'disabled' %}disabled{% endif %}>
-                                    {{time.start_time.strftime("%H:%M")}} - {{time.end_time.strftime("%H:%M")}}
-                            </button>
-                        </div>
-                        {% endfor %}
+                        {% if is_available%}
+                            {% for time in exam_times %}
+        
+                            <div class="col-2 mb-3 >">
+                                <button type="button" class="btn w-100 time-slot {% if time.id in booked_time_ids or exam_time_status[time.id] == 'disabled' %}is-booked {%else%}btn-success{% endif %}" 
+                                        onclick="document.getElementById('exam_time_id').value = '{{ time.id }}'; this.form.submit();"
+                                        {% if time.id in booked_time_ids or exam_time_status[time.id] == 'disabled' %}disabled{% endif %}>
+                                        {{time.start_time.strftime("%H:%M")}} - {{time.end_time.strftime("%H:%M")}}
+                                </button>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                        <h5>Số Lượng bệnh nhân đã đủ cho ngày hôm nay! xin lỗi vì sự bất tiện này</h5>
+                        {%endif%}
                     </div>
 
             </form>
@@ -80,8 +84,8 @@
         
 
         <div class="clinic-info mt-4">
-            <p><strong>Địa chỉ khám:</strong> Phòng khám Đa khoa Mediplus, Tầng 2, Trung tâm thương mại Mandarin Garden 2, 99 phố Tân Mai, Tân Mai, Hoàng Mai, Hà Nội</p>
-            <p><strong>Giá khám:</strong> 350.000đ</p>
+            <p><strong>Địa chỉ khám:</strong> Phòng khám HuyHung, Đương Đào Sư Tích, Khu Dân Cư Lập Phúc, Huyện Nhà Bè Thành, Phố Hồ Chí Minh</p>
+            <p><strong>Giá khám:</strong> {{exam_fee | format_currency}} vnd</p>
             <p><strong>Loại bảo hiểm áp dụng:</strong> Xem chi tiết</p>
         </div>
 

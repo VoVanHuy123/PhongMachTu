@@ -1,4 +1,4 @@
-import { showToast } from './toast.js';
+
 //chọn thuốc
 function selectMedicine(medicine) {
   const medicineNameInput = document.getElementById('medicineName');
@@ -128,8 +128,6 @@ document.addEventListener('DOMContentLoaded', function () {
       });
       console.log("1")
       const data = await response.json();
-      console.log(data.list_unit)
-      console.log("2")
 
       if (!response.ok) {
           // Hiển thị thông báo lỗi từ backend
@@ -142,7 +140,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // Nếu thành công, thêm thuốc vào danh sách
         //lấy danh sách đơn vị của thuốc
         const list_unit = data.list_unit;
-        console.log(list_unit);
+        
           
 
           // Kiểm tra xem thuốc đã tồn tại trong bảng chưa
@@ -216,6 +214,13 @@ document.addEventListener('DOMContentLoaded', function () {
           const modal = document.getElementById('addMedicineModal');
           const modalInstance = bootstrap.Modal.getInstance(modal);
           modalInstance.hide();
+          document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
+
+          modal.addEventListener('hidden.bs.modal', function () {
+              // Khôi phục lại các thuộc tính của body
+              document.body.style.overflow = '';         // Khôi phục overflow
+              document.body.style.paddingRight = '';     // Loại bỏ padding-right
+          });
           
 
           // Xóa dữ liệu cũ trong modal
@@ -247,6 +252,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const patientId = document.getElementById("patient-id").value; 
     const examRegistrationId = document.getElementById("exam-registration-id").value
 
+
     
 
     // Thu thập thông tin thuốc
@@ -273,9 +279,10 @@ document.addEventListener('DOMContentLoaded', function () {
             selected_unit_id : parseInt(selected_unit_id.value)
         };
     });
-
-    // Gửi dữ liệu đến backend
-    const response = await fetch("/doctor_user/create-medical-exam", {
+    
+    if(diagnosis && medicines.length != 0){
+      // Gửi dữ liệu đến backend
+      const response = await fetch("/doctor_user/create-medical-exam", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -298,6 +305,14 @@ document.addEventListener('DOMContentLoaded', function () {
       
         console.error(result.message);
         alert("Failed to create medical exam.");
+    }
+    }
+    else{
+      if(!diagnosis){
+        alert("Vui lòng nhập chuẩn đoán");
+      }else {
+        alert("Vui lòng thêm thuốc");
+      }
     }
   });
 
@@ -401,6 +416,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Đóng modal
     const editModal = bootstrap.Modal.getInstance(document.getElementById("editMedicineModal"));
     editModal.hide();
+    // document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
   
     // Xóa tham chiếu đến hàng hiện tại
     window.currentEditRow = null;
@@ -417,25 +433,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
   
-  //thêm sự kiện lập danh phiếu khám============================================
-  // document.getElementById('createMedicalExam').addEventListener('click', function () {
-  //   // event.preventDefault();  // Ngăn việc gửi form
-  //   console.log("Button clicked");
+  // thêm sự kiện lập danh phiếu khám============================================
+  document.getElementById('createMedicalExam').addEventListener('click', function () {
+    // event.preventDefault();  // Ngăn việc gửi form
+    console.log("Button clicked");
     // Lấy giá trị của các trường input
-    // console.log("vào");
-    // const patientId = document.getElementById('patient-id').value.trim();
-    // const examDay = document.getElementById('exam-dayy').value.trim();
-    // const examRegistrationId = document.getElementById('exam-registration-id').value.trim();
+    console.log("vào");
+    const patientId = document.getElementById('patient-id').value.trim();
+    const examDay = document.getElementById('exam-dayy').value.trim();
+    const examRegistrationId = document.getElementById('exam-registration-id').value.trim();
 
-    // // Kiểm tra nếu tất cả các trường đã có giá trị
-    // if (patientId && examDay && examRegistrationId) {
-    //     // Nếu hợp lệ, submit form
-    //     document.getElementById('createMedExamForm').submit();
-    // } else {
-    //     // Nếu không hợp lệ, thông báo cho người dùng
-    //     alert('Vui lòng điền đầy đủ thông tin trước khi lập phiếu khám!');
-    // }
-// });
+    // Kiểm tra nếu tất cả các trường đã có giá trị
+    if (patientId && examDay && examRegistrationId) {
+        // Nếu hợp lệ, submit form
+        document.getElementById('createMedExamForm').submit();
+    } else {
+        // Nếu không hợp lệ, thông báo cho người dùng
+        alert('Vui lòng điền đầy đủ thông tin trước khi lập phiếu khám!');
+    }
+});
 
 
 });

@@ -5,8 +5,9 @@ from flask import Flask
 from config import Config
 from app.admin import init_admin
 from config import Config
-from app.extensions import db,migrate, login_manager
+from app.extensions import db,migrate, login_manager, mail 
 from app.models import *
+
 
 
 
@@ -18,9 +19,10 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
+    mail.init_app(app)
     init_admin(app)
     Config.init_cloudinary()
-    
+    # celery.conf.update(app.config)
 
     from .auth.routes import auth
     from .cashier.routes import cashier
@@ -32,5 +34,5 @@ def create_app():
     app.register_blueprint(cashier)
     app.register_blueprint(appointment)
     app.register_blueprint(doctor_user)
-    return app
+    return app 
     

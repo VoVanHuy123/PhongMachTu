@@ -38,8 +38,8 @@
                 
             </div> <!-- end row-->
             {% for med_exam in medical_exams%}
-                <div class="card border shadow-none">
-                    <div class="card-body">
+                <div class="card border med-exam-item">
+                    <div class="card-body ">
 
                         <div class="d-flex align-items-center justify-content-center border-bottom pb-3">
                             <div class="me-4 text-center">
@@ -49,7 +49,7 @@
                                 <span class="text-truncate font-size-18">{{patient.first_name}} {{patient.last_name}}</span>
                             </div>
                             <div class="flex-grow-1 ">
-                                {{med_exam.diagnosis}}
+                                Triệu chứng: {{med_exam.diagnosis}}
                             </div>
                         </div>
 

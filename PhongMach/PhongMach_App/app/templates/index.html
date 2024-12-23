@@ -1,20 +1,20 @@
  {% extends "layout/base.html" %} 
 {% block title %}Phòng Khám Tư{% endblock%}
 {%block content%}
-<section id="billboard" class ="d-flex align-items-center justify-content-center text-center">
+<section id="billboard" class ="d-flex align-items-center justify-content-center text-center text-primary">
   <div>
-    <h1>Welcome to Medilab</h1>
-    <p>Your Health, Our Priority</p>
+    <h1>Chào mừng tới phòng khám HuyHung</h1>
+    <h5>Sức Khỏe của bạn, Ưu tiên của chúng tôi</h5>
     {%if current_user.is_authenticated %}
     {%if current_user.user.role == "patient" %}
 
-    <a href="{{url_for('appointment.appointment_main')}}" class="btn btn-light btn-bg btn-slide hover-slide-right mt-4">
-      <span>Book Appointment</span>
+    <a href="{{url_for('appointment.appointment_main')}}" class="btn btn-outline-primary  btn-bg btn-slide hover-slide-right mt-4 d-inline-flex justify-content-center align-items-center ">
+      <span>ĐẶT LỊCH KHÁM</span>
     </a>
     {% endif %}
     {%else%}
-    <a href="{{url_for('auth.user_login')}}" class="btn btn-light btn-bg btn-slide hover-slide-right mt-4">
-      <span>Book Appointment</span>
+    <a href="{{url_for('auth.user_login')}}" class="btn btn-outline-primary  btn-bg btn-slide hover-slide-right mt-4 d-inline-flex justify-content-center align-items-center ">
+      <span>ĐẶT LỊCH KHÁM</span>
     </a>
   {%endif%}
   </div>
@@ -27,8 +27,8 @@
 
 <section id="about" class="py-5 ">
   <div class="container text-center">
-      <h2>About Us</h2>
-      <h4>Phòng khám của chúng tôi được thành lập với mục tiêu cung cấp dịch vụ chăm sóc sức khỏe chất lượng cao và thân thiện đến mọi khách hàng. Chúng tôi tự hào là địa chỉ đáng tin cậy, đáp ứng các nhu cầu y tế đa dạng từ chẩn đoán, điều trị đến tư vấn sức khỏe.</h4>
+      <h2>Giới thiệu</h2>
+      <h5>Phòng khám của chúng tôi được thành lập với mục tiêu cung cấp dịch vụ chăm sóc sức khỏe chất lượng cao và thân thiện đến mọi khách hàng. Chúng tôi tự hào là địa chỉ đáng tin cậy, đáp ứng các nhu cầu y tế đa dạng từ chẩn đoán, điều trị đến tư vấn sức khỏe.</h5>
   </div>
 </section>
 
@@ -36,8 +36,8 @@
 <section id="services" class="service bg-light pt-5 pb-5">
   <div class="container">
       <div class="text-center mb-4">
-          <h2>Our Services</h2>
-          <p>Explore our wide range of medical services.</p>
+          <h2>Dịch vụ của chúng tôi</h2>
+          <p>Khám phá các dịch vụ y tế đa dạng của chúng tôi.</p>
       </div>
       <div class="row">
           <div class="col-md-4 text-center">
@@ -65,13 +65,5 @@
   </div>
 </section>
 
-<!-- Contact Section -->
-<section id="contact" class="py-5">
-  <div class="container text-center">
-      <h2>Contact Us</h2>
-      <p>Get in touch with us for appointments or queries.</p>
-      <a href="mailto:info@medilab.com" class="btn btn-secondary">Email Us</a>
-  </div>
-</section>
 
   {% endblock%}

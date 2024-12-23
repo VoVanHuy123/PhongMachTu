@@ -1,4 +1,7 @@
 {% extends "layout/base.html" %}
+{% block extra_js %}
+    <script type="module" src="{{ url_for('static', filename='js/toast.js') }}"></script>
+{% endblock %}
 {% block content %}
 <section >
     <div class="container py-5">
@@ -37,7 +40,7 @@
                 </div>
                 <div class="col-md-6 col-lg-3 col-xl-3 border-sm-start-none border-start">
                  
-                  <div class="d-flex flex-column mt-4  ">
+                  <div class="d-flex flex-column  h-100 justify-content-center ">
 
                     <form class = "d-flex" method="POST" action="{{ url_for('doctor_user.doctor_detail') }}">
                       <input type="hidden" name="doctor_id" value="{{doctor.id}}" />
@@ -86,5 +89,16 @@
     </ul>
     </div>
   </section>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Lấy thông báo từ session
+        const toastMessage = "{{ session.pop('toast_message', '') }}";
+        const toastType = "{{ session.pop('toast_type', 'success') }}";
 
+        // Nếu có thông báo, hiển thị
+        if (toastMessage) {
+            showToast(toastMessage, toastType);
+        }
+    });
+</script>
 {%endblock%}

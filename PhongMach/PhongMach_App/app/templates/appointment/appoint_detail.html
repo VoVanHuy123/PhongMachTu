@@ -1,4 +1,7 @@
 {% extends "layout/base.html" %}
+{% block extra_js %}
+    <script type="module" src="{{ url_for('static', filename='js/toast.js') }}"></script>
+{% endblock %}
 {% block content %}
 <div class="container mt-5 bootstrap snippets bootdey">
     <div class="row ng-scope">
@@ -9,19 +12,19 @@
                     <h3 class="m0 text-bold">{{doctor.last_name}} {{doctor.first_name}}</h3>
 
                     <div class="mv-lg row">
-                      <div class="col-sm-6">
+                      <div class="col-sm-6 text-start">
                         <strong>Chuyên khoa: </i></strong>
                       </div>
-                      <div class="col-sm-6">
+                      <div class="col-sm-6  text-start">
                         <p>{{doctor.specialty}}</p>
                       </div>
                     </div>
                     
                     <div class="mv-lg row">
-                      <div class="col-sm-6">
+                      <div class="col-sm-6  text-start">
                         <strong>Nơi Làm việc hiện tại: </i></strong>
                       </div>
-                      <div class="col-sm-6">
+                      <div class="col-sm-6  text-start">
                         <p>{{doctor.current_workplace}}</p>
                       </div>
                     </div>
@@ -40,9 +43,16 @@
                       </span>
                     </div>
                     <div class="media">
+                      <i class="fa-solid fa-dollar-sign"></i>
+                      <span class="pl-lg-2">
+                        {{exam_fee | format_currency}} vnd
+                      </span>
+                    </div>
+
+                    <div class="media">
                       <i class="bi bi-geo-alt-fill"></i>
                       <span class="pl-lg-2">
-                        dịa chỉ
+                        địa chỉ: Đương Đào Sư Tích, Khu Dân Cư Lập Phúc, Huyện Nhà Bè Thành, Phố Hồ Chí Minh
                       </span>
                     </div>
                     
@@ -54,16 +64,14 @@
             <div class="panel panel-default">
                 <div class="panel-body">
                     
-                    <div class="h4 text-center">Contact Information</div>
-                    <div class="row pv-lg">
-                        
-                    </div>
+                    <div class="h4 text-center">Thông Tin</div>
+                    
                     <div class="">
                         <div class="card mb-3">
                           <div class="card-body">
                             <div class="row">
                               <div class="col-sm-3">
-                                <h6 class="mb-0">Full Name</h6>
+                                <h6 class="mb-0">Họ và Tên</h6>
                               </div>
                               <div class="col-sm-9 text-secondary">
                                 {{current_user.user.first_name}} {{current_user.user.last_name}}
@@ -81,7 +89,7 @@
                             <hr>
                             <div class="row">
                               <div class="col-sm-3">
-                                <h6 class="mb-0">Phone</h6>
+                                <h6 class="mb-0">Số điện thoại</h6>
                               </div>
                               <div class="col-sm-9 text-secondary">
                                 {% if current_user.user.phone_numbers %}
@@ -95,7 +103,7 @@
                             </div>
                             <hr>
                             <div class="button-area">
-                              <form class="mb-5" method="post" action = "{{url_for('appointment.confirm_appoint')}}">
+                              <form id="regis_info_form" class="mb-5" method="post" action = "{{url_for('appointment.confirm_appoint')}}">
                                   <div class="row">
                                     
                                     <div class="col-md-12 form-group mb-3">
@@ -107,8 +115,8 @@
                                   <input type="hidden" id="exam_time_id" name="exam_time_id" value="{{ exam_time.id}}">
                                   <input type="hidden" id="exam_day" name="exam_day" value="{{exam_day}}">
                                   <div class="form-group d-flex">
-                                      <div class="col-sm-offset-2 col-sm-10">
-                                          <button class="btn btn-info" type="submit">Đăng ký</button>
+                                      <div class="col-sm-offset-2 col-12">
+                                          <button onclick = "submitForm(event);"  id = "regis_submit_btn" class="btn btn-info w-100" >Đăng ký</button>
                                       </div>
                                       
                                   </div>
@@ -117,16 +125,31 @@
                               <form class="mb-5 d-flex align-items-start flex-column" method="post" action = "{{url_for('appointment.book')}}">
                                 <input type="hidden" id="doctor_id" name="doctor_id" value="{{ doctor.id }}">
                                 
-                                <div class="col-sm-offset-2 col-sm-10 ">
-                                  <button type = "submit" class="btn btn-info">Hủy</button>
+                                <div class="col-sm-offset-2 col-12 ">
+                                  <button type = "submit" class="btn btn-secondary w-100">Hủy</button>
                                 </div>
                               </form>
                             </div>
                
                 
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    </div>
+</div>
+</div>
+<script>
+  const form = document.getElementById("regis_info_form");
+  function submitForm(event) {
+    event.preventDefault();
+    let symptom = document.getElementById("symptom").value;
+    if(symptom) {
+      form.submit();
+    }else {
+      alert("Vui lòng nhập triệu chứng");
+    }
+  }
+</script>
 {% endblock content %}

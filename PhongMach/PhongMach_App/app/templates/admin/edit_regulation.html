@@ -1,0 +1,18 @@
+{% extends 'admin/master.html' %}
+
+{% block body %}
+<form id="regulation-form" method = "POST" action = "/admin/regulation/edit/{{regulation.id}}">
+    
+    <div class="mb-3">
+        <label for="regulation-name" class="form-label fw-bold">Quy định</label>
+        <input readonly type="text" name = "regulation_name" class="form-control" id="regulation-name" value="{{regulation.name}}"  required>
+    </div>
+    <div class="mb-3">
+        <label for="number" class="form-label fw-bold">Số lượng</label>
+        <input type="number" name = "regulation_number" class="form-control" id="number" min="0" value="{{regulation.number}}"  required>
+    </div>
+    <div class="mb-3">
+        <button class="btn btn-success" type = "submit"> sửa</button>
+    </div>
+</form>
+{% endblock%}

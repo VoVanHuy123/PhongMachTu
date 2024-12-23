@@ -1,10 +1,11 @@
 {% extends "layout/base.html" %}
 
 {% block extra_js %}
+<script type="module" src="{{ url_for('static', filename='js/toast.js') }}"></script>
     <script type="module" src="{{ url_for('static', filename='js/medical.js') }}"></script>
 {% endblock %}
 {% block content%}
-   <div class="">
+   <div class="container">
     <div class="container mt-4 border p-4 m-3 min-vh-100 d-flex justify-content-start  flex-column">
         <div class="row mb-3">
           <div class="col-md-6">
@@ -38,7 +39,7 @@
           </tbody>
         </table>
         <div class="text-center">
-            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addMedicineModal">
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addMedicineModal">    
                 <i class="bi bi-plus"></i> Thêm thuốc
               </button>
         </div>
@@ -132,15 +133,18 @@
                   <!-- Thêm các lựa chọn thuốc -->
                 </div>
               </div>
+
+
+
             </div>
-          </div>
+        </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
           <button type="button" id="confirmAddMedicine" class="btn btn-primary">Thêm</button>
         </div>
       </div>
     </div>
-  </div>
+</div>
 
 
 
@@ -182,4 +186,5 @@
     </div>
   </div>
 </div>
+
 {%endblock%}

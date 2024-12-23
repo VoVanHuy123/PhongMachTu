@@ -1,4 +1,4 @@
-export function showToast(message, type = 'success') {
+function showToast(message, type = 'success') {
     const toastContainer = document.getElementById('toast-container');
 
     // Tạo thông báo mới
@@ -14,3 +14,5 @@ export function showToast(message, type = 'success') {
         toast.remove();
     }, 3000);
 }
+
+window.showToast = showToast;

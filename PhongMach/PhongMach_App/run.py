@@ -1,6 +1,6 @@
 from app import create_app,db
 
-app = create_app()
+app= create_app()
 
 @app.template_filter('format_currency')
 def format_currency(value):

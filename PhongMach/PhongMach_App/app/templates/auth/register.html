@@ -1,4 +1,6 @@
 {% extends "layout/base.html"%}
+
+
 {% block content %}
 
 {% if err_msg%}
@@ -14,7 +16,7 @@
           <div class="card card-registration my-4">
             <div class="row g-0">
               
-            <form method = "post" action = "{{url_for('auth.user_register')}}" enctype = "multipart/form-data"> 
+            <form id = "register_form" method = "post" action = "{{url_for('auth.user_register')}}" enctype = "multipart/form-data"> 
                 <div class="card-body p-md-5 text-black">
                   <h3 class="mb-5 text-center text-uppercase">ĐĂNG KÍ TÀI KHOẢN</h3>
   
@@ -127,7 +129,7 @@
   
   
                   <div class="d-flex justify-content-end pt-3">
-                    <button  type="button" data-mdb-button-init data-mdb-ripple-init class="btn btn-light btn-lg">Reset all</button>
+                    <button id="reset-btn" onclick = "resetAll();"  type="button" data-mdb-button-init data-mdb-ripple-init class="btn btn-light btn-lg">Reset all</button>
                     <input  type="submit" value = "Đăng kí" data-mdb-button-init data-mdb-ripple-init class="btn btn-warning btn-lg ms-2">
                   </div>
   
@@ -139,5 +141,9 @@
       </div>
     </div>
   </section>
-
+<script>
+  function resetAll(){
+    document.getElementById("register_form").reset();
+  }
+</script>
 {%endblock%}

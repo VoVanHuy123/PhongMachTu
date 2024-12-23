@@ -1,7 +1,7 @@
 from flask import request, render_template, redirect, url_for, jsonify, flash
-from flask_admin import Admin, expose,BaseView
+from flask_admin import Admin, expose,BaseView,AdminIndexView
 from flask_admin.contrib.sqla import ModelView
-from app.models import   Medicine, Category ,Unit,MedicineUnit,UnitConvert,MedicalExam,DetailExam,ExamRegistration,ExamSchedule,ExamTime,User,Regulation,Bill
+from app.models import   Medicine, Category ,Unit,MedicineUnit,UnitConvert,MedicalExam,DetailExam,ExamRegistration,ExamSchedule,ExamTime,User,Regulation,Bill,Regulation
 from app.extensions import db
 from wtforms import SelectField
 from flask import request,redirect,render_template
@@ -156,27 +156,10 @@ class MedicineView(ModelView):
         else:
             return jsonify({'message': 'Không tìm thấy thuốc'}), 404
         
-    
-
-    # Xử lý xóa thuốc (POST)
-    # @expose('/delete/<int:id>/', methods=['POST'])
-    # def delete_medicine(self, id):
-    #     medicine = get_medicine_by_id(id)
-    #     print(medicine)
-    #     if not medicine:
-    #         return jsonify({'message': 'Không tìm thấy thuốc'}), 404
-
-    #     try:
-
-    #         # Xóa thuốc và các quan hệ liên quan
-    #         db.session.delete(medicine)
-    #         db.session.commit()
-    #         flash('Xóa thuốc thành công.', 'success')
-    #         return jsonify({'message': 'Xóa thành công'}), 200
-    #     except Exception as e:
-    #         db.session.rollback()
-    #         flash(f'Lỗi khi xóa thuốc: {str(e)}', 'danger')
-    #         return jsonify({'error': str(e)}), 400
+class AdminLogout(BaseView):
+    @expose('/')
+    def admin_logout(self):
+        return redirect(url_for('auth.user_logout'))      
 
 class RegiterView(BaseView):
     @expose('/', methods = ['POST', 'GET'])
@@ -238,11 +221,31 @@ class ReportView(BaseView):
             "month_total": month_total,
         }
         
-        medicine_sold = count_medicine_by_category(month,year,category)
+        medicine_sold = get_medicine_sold_report(month,year,category)
+
+        
+        months_report = {
+            "moths_revenue":[get_monthly_revenue(i,year) for i in range(1,13)],
+            "months" :[
+                "January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"
+            ]
+        }
+        # print(count_medicine_by_category(12,2024,1))
         categories = get_medicine_categories()
         medicine_report = {
             "medicine_sold" : medicine_sold,
             "categories" : categories
+        }
+        quarter_revenue = get_revenue('quarter',year)
+        quarter_revenue_lables = []
+        quarter_revenue_data = []
+        for i in quarter_revenue:
+            quarter_revenue_lables.append(i[0])
+            quarter_revenue_data.append(i[1])
+        quarter_revenue_report = {
+            "quarter_revenue_data" : quarter_revenue_data,
+            "quarter_revenue_lables" : quarter_revenue_lables
         }
         # Trả về giao diện với dữ liệu
         return self.render('admin/report.html', 
@@ -251,40 +254,113 @@ class ReportView(BaseView):
                            month = month,
                            year=year,
                            category=category,
-                           medicine_report=medicine_report)
+                           medicine_report=medicine_report,
+                           months_report =months_report,
+                           quarter_revenue_report=quarter_revenue_report)
     
-    @expose('/get_revenue_info', methods=['GET'])
-    def get_revenue_info(self, **kwargs):
+    @expose('/api/get_med_sold', methods=['GET'])
+    def get_med_sold(self, **kwargs):
         try:
             current_date = datetime.now()
-            month = request.args.get('month', default=12, type=int)
-            year = request.args.get('year', default=2024, type=int)
-
-            # Tính toán dữ liệu
-            moths_revenue = [get_monthly_revenue(i,year) for i in range(1,13)]
-            months = [
-                "January", "February", "March", "April", "May", "June",
-                "July", "August", "September", "October", "November", "December"
-            ]
+            month = request.args.get('month', default=current_date.month, type=int)
+            year = request.args.get('year', default=current_date.year, type=int)
+            category = request.args.get('category', default=1,type=int)
+            med_list = [{
+                "name":med[0],
+                "quantity":med[1],
+            }for med in get_medicine_sold_report(month,year,category)]
             return jsonify({
-                'months': months,
-                'moths_revenue':moths_revenue,
-                'message': "oonr",
-            })
+                "message": "good",
+                "med_list":med_list,
+            }), 200
         except Exception as e:
             return jsonify({
                 'error': str(e)
             }), 500
 
+class MyAdminIndexView(AdminIndexView):
+    @expose('/')
+    def index(self):
+        selected_cate = int(request.args.get('category',1))
+        
+        num_each_med_of_category = get_num_med_of_category(selected_cate)
+        num_med_of_category =[{
+            "category_name": med[0],
+            "num":med[1] 
+        }for med in get_medicine_of_category()]
+
+        return self.render('admin/index.html',
+                           num_med_of_category=num_med_of_category,
+                           categories = get_medicine_categories(),
+                           num_each_med_of_category=num_each_med_of_category,
+                           selected_cate=selected_cate)
+    
+    @expose('/api/get_num_each_med_of_category', methods=['POST'])
+    def get_num_med_of_category(self):
+        if request.is_json:  # Kiểm tra xem request có phải là JSON không
+            try:
+                # Lấy dữ liệu JSON
+                selected_cate = int(request.get_json().get('category'))
+                print(f"Selected category: {selected_cate}")
+
+                # Thực hiện logic xử lý
+                num_each_med_of_category = get_num_med_of_category(selected_cate)
+
+                # Tạo danh sách các medicine
+                med_list = [{
+                    "name": med[1],
+                    "unit": med[2],
+                    "quantity": med[3]
+                } for med in num_each_med_of_category]
+
+
+                # Trả về kết quả JSON
+                return jsonify({'med_list': med_list})
+
+            except Exception as e:
+                return jsonify({'error': f"Đã xảy ra lỗi: {str(e)}"}), 400  # Trả về lỗi nếu không thể xử lý
+        else:
+            return jsonify({'error': 'Content-Type phải là application/json'}), 400
+    
+
+class RegulationView(ModelView):
+    can_delete = False
+    @expose('/edit/<int:id>/', methods=['GET','POST'])
+    def edit_view(self, id):
+        regulation = Regulation.query.get(id)
+        if request.method == "POST":
+            try:
+                number = request.form.get("regulation_number")
+                regulation.number = number
+                db.session.commit()
+                return redirect(url_for('.index_view'))
+            except Exception as e:
+                print(str(e))
+                db.session.rollback()
+        return self.render('admin/edit_regulation.html',regulation = regulation)
+
+class CategoryView(ModelView):
+    @expose('/new/', methods=['GET', 'POST'])
+    def create_view(self):
+        if get_num_category() >= get_num_category_regulation():
+            return self.render('admin/create_deny.html') 
+        return super().create_view()
+
+class UnitView(ModelView):
+    @expose('/new/', methods=['GET', 'POST'])
+    def create_view(self):
+        if get_num_unit() >= get_num_unit_regulation():
+            return self.render('admin/create_deny.html') 
+        return super().create_view()
 def init_admin(app):
     """
     Hàm khởi tạo Flask-Admin.
     """
-    admin = Admin(app, name="Admin Panel", template_mode="bootstrap4")
+    admin = Admin(app, name="Admin Panel", template_mode="bootstrap4",index_view=MyAdminIndexView())
     admin.add_view(MedicineView(Medicine, db.session))
-    admin.add_view(ModelView(Category, db.session))
-    admin.add_view(ModelView(Unit, db.session))
-    admin.add_view(ModelView(Regulation, db.session))
+    admin.add_view(CategoryView(Category, db.session))
+    admin.add_view(UnitView(Unit, db.session))
+    admin.add_view(RegulationView(Regulation, db.session))
     admin.add_view(ModelView(Bill, db.session))
     admin.add_view(ModelView(MedicalExam, db.session))
     admin.add_view(ModelView(User, db.session))
@@ -292,9 +368,11 @@ def init_admin(app):
     admin.add_view(ModelView(DetailExam, db.session))
     admin.add_view(ModelView(ExamRegistration, db.session))
     admin.add_view(ModelView(ExamSchedule, db.session))
+    admin.add_view(ModelView(ExamTime, db.session))
     
     admin.add_view(RegiterView(name='Regiter', endpoint='regiter'))
     admin.add_view(ReportView(name="Report", endpoint='report'))
+    admin.add_view(AdminLogout(name="SignOut", endpoint='signout'))
     
 
 

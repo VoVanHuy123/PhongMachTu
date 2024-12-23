@@ -56,7 +56,8 @@
                             </div>
                            
                             
-                            <a type = "button" class="btn btn-small btn-block btn-success text-center d-flex justify-content-center align-items-center" data-bs-toggle="modal" data-bs-target="#editUserModal">Edit</a>
+                            <a type = "button" class="btn btn-small mb-2  btn-block btn-success text-center d-flex justify-content-center align-items-center" data-bs-toggle="modal" data-bs-target="#editUserModal">Chỉnh sửa thông tin</a>
+                            <a type = "button" class="btn btn-small btn-block btn-success text-center d-flex justify-content-center align-items-center" data-bs-toggle="modal" data-bs-target="#editUserAccountModal">Đổi mật khẩu</a>
                             {%if current_user.is_authenticated == false or current_user.user.role == "patient"%}
                             <a href="{{url_for('appointment.appointment_main')}}" class="btn btn-dark btn-bg btn-slide hover-slide-right mt-2 btn-block btn-success text-center d-flex justify-content-center align-items-center">
                                 <span>Book Appointment</span>
@@ -72,24 +73,18 @@
                         <div class="card">
                             <div class="card right-profile-card mb-0">
                                 <div class="card-header alert-primary">
-                                    <ul class="nav nav-pills" id="pills-tab" role="tablist">
+                                    <ul class="nav nav-pills d-flex justify-content-center align-items-center" id="pills-tab" role="tablist">
                                         <li class="nav-item">
-                                            <a class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-selected="true">Work Experience</a>
+                                            <a class="nav-link {% if request.args.get('tab') == 'pills-home' or not request.args.get('tab') %}active{% endif %}"
+                                                id="pills-home-tab" data-bs-toggle="pill" href="#pills-home" role="tab" aria-selected="true">
+                                                    Phiếu Đăng kí
+                                            </a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link" id="pills-education-tab" data-toggle="pill" href="#pills-education" role="tab" aria-selected="false">Education</a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a class="nav-link" id="pills-timeline-tab" data-toggle="pill" href="#pills-timeline" role="tab" aria-selected="false">Timeline</a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a class="nav-link" id="pills-document-tab" data-toggle="pill" href="#" role="tab" aria-selected="false">Document</a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a class="nav-link" id="pills-event-tab" data-toggle="pill" href="#" role="tab" aria-selected="false">Event</a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a class="nav-link" id="pills-tasks-tab" data-toggle="pill" href="#" role="tab" aria-selected="false">Tasks</a>
+                                            <a class="nav-link {% if request.args.get('tab') == 'pills-education' %}active{% endif %}"
+                                                id="pills-education-tab" data-bs-toggle="pill" href="#pills-education" role="tab" aria-selected="false">
+                                                    Phiếu Khám
+                                            </a>
                                         </li>
                                     </ul>
                                 </div>
@@ -99,141 +94,225 @@
 
                         
                             <div class="card-body">
-                                <div class="row">
-                                        <div class="col-xl-12">
-                                            <div class="card">
-                                                <div class="card-body">
-                                                    <div class="row align-items-center">
-                                                        <div class="table-responsive px-3">
-                                                            {% if exam_registrations%}
-                                                            <table class="table table-striped align-middle table-nowrap">
-                                                                <tbody>
-                                                                    {% for exam_regis in exam_registrations%}
-                                                                    <tr>
-                                                                        <td class = "document-image">
-                                                                            <div class="avatar-lg me-4 immmmmmmm">
-                                                                                <img src="{{ url_for('static', filename='img/888108.png') }}" class="img-fluid rounded " alt="">
-                                                                            </div>
-                                                                        </td>
-                                                                        <td class = "text-start">
-                                                                            <ul class="list-unstyled ps-0 mb-0">
-                                                                                <li>
-                                                                                    <p class="text-muted mb-1 text-truncate">
-                                                                                        <i class="bi bi-alarm"></i>
-                                                                                        {{exam_regis.start_time}} - {{exam_regis.end_time}}
-                                                                                    </p>
-                                                                                </li>
-                                                                                <li>
-                                                                                    <p class="text-muted mb-1 text-truncate">
-                                                                                        <i class="bi bi-calendar"></i>
-                                                                                        {{exam_regis.day}}
-                                                                                    </p>
-                                                                                </li>
-                                                                                
-                                                                            </ul>
-                                                                        </td>
-                                
-                                                                        <td class = "text-start">
-                                                                                <h6 >
-                                                                                    <a href="ecommerce-product-detail.html" class="text-dark text-start">
-                                                                                        Bác Sĩ: {{exam_regis.doctor_name}}
+                                <div class="tab-content" id="pills-tabContent">
+                                    <!-- Nội dung Phiếu Đăng Ký -->
+                                    <div class="tab-pane fade  {% if tab == "pills-home" %} show active {%endif%}" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+                                        <div class="row">
+                                            <div class="col-xl-12">
+                                                <div class="card">
+                                                    <div class="card-body">
+                                                        <div class="row align-items-center">
+                                                            <div class="table-responsive px-3">
+                                                                {% if exam_registrations %}
+                                                                <table class="table table-striped align-middle table-nowrap">
+                                                                    <tbody>
+                                                                        {% for exam_regis in exam_registrations %}
+                                                                        <tr>
+                                                                            <td class="document-image">
+                                                                                <div class="avatar-lg me-4 immmmmmmm">
+                                                                                    <img src="{{ url_for('static', filename='img/888108.png') }}" class="img-fluid rounded" alt="">
+                                                                                </div>
+                                                                            </td>
+                                                                            <td class="text-start">
+                                                                                <ul class="list-unstyled ps-0 mb-0">
+                                                                                    <li>
+                                                                                        <p class="text-muted mb-1 text-truncate">
+                                                                                            <i class="bi bi-alarm"></i>
+                                                                                            {{ exam_regis.start_time }} - {{ exam_regis.end_time }}
+                                                                                        </p>
+                                                                                    </li>
+                                                                                    <li>
+                                                                                        <p class="text-muted mb-1 text-truncate">
+                                                                                            <i class="bi bi-calendar"></i>
+                                                                                            {{ exam_regis.day }}
+                                                                                        </p>
+                                                                                    </li>
+                                                                                </ul>
+                                                                            </td>
+                                                                            <td class="text-start">
+                                                                                <h6>
+                                                                                    <a class="text-dark text-start">
+                                                                                        Bác Sĩ: {{ exam_regis.doctor_name }}
                                                                                     </a>
                                                                                 </h6>
-                                                                                
-                                                                        </td>
-                                
-                                
-                                                                        <td class = "text-start">
-                                                                            {%if exam_regis.watting_status == true%}
-                                                                            <p>Đang chờ</p>
-                                                                            {%else%}
-                                                                            <p>Hoàn thành</p>
-                                                                            {%endif%}
-                                                                            
-                                                                        </td>
-                                
-                                                                        <td class = "text-start">
-                                                                            {%if exam_regis.watting_status == true%}
-                                                                            <i class="bi bi-hourglass"></i>
-                                                                            {%else%}
-                                                                            <i class="bi bi-check-square"></i>
-                                                                            {%endif%}
-                                                                            
-                                                                        </td>
-                                
-            
-                                
-                                                                        
-                                                                    </tr>
-                                                                    {% endfor %}
-        
-                                
-                                                                </tbody>
-                                                            </table>
-                                                            {%else%}
-                                                            Chưa có  phiếu đăng kí nào
-                                                            {%endif%}
+                                                                            </td>
+                                                                            <td class="text-start">
+                                                                                {% if exam_regis.watting_status == true %}
+                                                                                <p>Đang chờ</p>
+                                                                                {% else %}
+                                                                                <p>Hoàn thành</p>
+                                                                                {% endif %}
+                                                                            </td>
+                                                                            <td class="text-start">
+                                                                                {% if exam_regis.watting_status == true %}
+                                                                                <i class="bi bi-hourglass"></i>
+                                                                                {% else %}
+                                                                                <i class="bi bi-check-square"></i>
+                                                                                {% endif %}
+                                                                            </td>
+                                                                        </tr>
+                                                                        {% endfor %}
+                                                                    </tbody>
+                                                                </table>
+                                                                {% else %}
+                                                                Chưa có phiếu đăng kí nào
+                                                                {% endif %}
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
+
+                                        <!-- phân trang  pills-home-->
+                                        <nav aria-label="Phiếu Đăng Ký" class="d-flex justify-content-center">
+                                            <ul class="pagination">
+                                                {% if registration_pagination.has_prev %}
+                                                <li class="page-item">
+                                                    <a class="page-link" href="{{ url_for('auth.user_page', page=registration_pagination.prev_num,tab='pills-home') }}">«</a>
+                                                </li>
+                                                {% else %}
+                                                <li class="page-item disabled">
+                                                    <span class="page-link">«</span>
+                                                </li>
+                                                {% endif %}
+
+                                                {% for page in registration_pagination.iter_pages() %}
+                                                {% if page %}
+                                                    {% if page == registration_pagination.page %}
+                                                    <li class="page-item active"><span class="page-link">{{ page }}</span></li>
+                                                    {% else %}
+                                                    <li class="page-item">
+                                                        <a class="page-link" href="{{ url_for('auth.user_page', page=page , tab='pills-home') }}">{{ page }}</a>
+                                                    </li>
+                                                    {% endif %}
+                                                {% else %}
+                                                <li class="page-item disabled"><span class="page-link">...</span></li>
+                                                {% endif %}
+                                                {% endfor %}
+
+                                                {% if registration_pagination.has_next %}
+                                                <li class="page-item">
+                                                    <a class="page-link" href="{{ url_for('auth.user_page', page=registration_pagination.next_num,tab='pills-home') }}">»</a>
+                                                </li>
+                                                {% else %}
+                                                <li class="page-item disabled"><span class="page-link">»</span></li>
+                                                {% endif %}
+                                            </ul>
+                                        </nav>
+                                    </div>
+                    
+                                    <!-- Nội dung Phiếu Khám -->
+                                    <div class="tab-pane fade {% if tab == "pills-education" %} show active {%endif%}" id="pills-education" role="tabpanel" aria-labelledby="pills-education-tab">
+                                        <!-- Thay thế nội dung bên trong bằng danh sách phiếu khám -->
+                                        <div class="row">
+                                            <div class="col-xl-12">
+                                                <div class="card">
+                                                    <div class="card-body">
+                                                        <div class="row align-items-center">
+                                                            <div class="table-responsive px-3">
+                                                                {% if medical_exams %}
+                                                                <table class="table table-striped align-middle table-nowrap">
+                                                                    <tbody>
+                                                                        {% for med_exam in medical_exams %}
+                                                                        <tr>
+                                                                            <td class="document-image">
+                                                                                <div class="avatar-lg me-4 immmmmmmm">
+                                                                                    <img src="{{ url_for('static', filename='img/888108.png') }}" class="img-fluid rounded" alt="">
+                                                                                </div>
+                                                                            </td>
+                                                                            <td class="text-start">
+                                                                                <ul class="list-unstyled ps-0 mb-0">
+                                                                                    <li>
+                                                                                        <p class="text-muted mb-1 text-truncate">
+                                                                                            <i class="bi bi-alarm"></i>
+                                                                                            {{ med_exam.exam_day }}
+                                                                                        </p>
+                                                                                    </li>
+                                                                                </ul>
+                                                                            </td>
+                                                                            <td class="text-start">
+                                                                                <h6>
+                                                                                    <a class="text-dark text-start">
+                                                                                        Bác Sĩ: {{ med_exam.doctor_name }}
+                                                                                    </a>
+                                                                                </h6>
+                                                                            </td>
+                                                                            <td class="text-start">
+                                                                                <h6>
+                                                                                    <a class="text-dark text-start">
+                                                                                        Chuẩn đoán: {{ med_exam.diagnosis }}
+                                                                                    </a>
+                                                                                </h6>
+                                                                            </td>
+                                                                            <td class="text-start">
+                                                                                <form method = "POST" action = "{{url_for('cashier.detail_bill')}}">
+                                                                                    <input type="hidden" name="medical_exam_id" value="{{med_exam.id}}">
+                                                                                <h6>
+                                                                                    <button type = "submit" class=" btn btn-secondary text-light text-start">
+                                                                                        chi tiết <i class="fa-solid fa-circle-info"></i>
+                                                                                    </button>
+                                                                                </h6>
+                                                                                </form>
+                                                                            </td>
+                                                                            
+                                                                        </tr>
+                                                                        {% endfor %}
+                                                                    </tbody>
+                                                                </table>
+                                                                {% else %}
+                                                                Chưa có phiếu khám nào
+                                                                {% endif %}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <nav aria-label="Phiếu Khám" class="d-flex justify-content-center">
+                                            <ul class="pagination">
+                                                {% if exam_pagination.has_prev %}
+                                                <li class="page-item">
+                                                    <a class="page-link" href="{{ url_for('auth.user_page', page=exam_pagination.prev_num , tab='pills-education') }}">«</a>
+                                                </li>
+                                                {% else %}
+                                                <li class="page-item disabled">
+                                                    <span class="page-link">«</span>
+                                                </li>
+                                                {% endif %}
+
+                                                {% for page in exam_pagination.iter_pages() %}
+                                                {% if page %}
+                                                    {% if page == exam_pagination.page %}
+                                                    <li class="page-item active"><span class="page-link">{{ page }}</span></li>
+                                                    {% else %}
+                                                    <li class="page-item">
+                                                        <a class="page-link" href="{{ url_for('auth.user_page', page=page, tab='pills-education') }}">{{ page }}</a>
+                                                    </li>
+                                                    {% endif %}
+                                                {% else %}
+                                                <li class="page-item disabled"><span class="page-link">...</span></li>
+                                                {% endif %}
+                                                {% endfor %}
+
+                                                {% if exam_pagination.has_next %}
+                                                <li class="page-item">
+                                                    <a class="page-link" href="{{ url_for('auth.user_page', page=exam_pagination.next_num, tab='pills-education') }}">»</a>
+                                                </li>
+                                                {% else %}
+                                                <li class="page-item disabled"><span class="page-link">»</span></li>
+                                                {% endif %}
+                                            </ul>
+                                        </nav>
+                                    </div>
                                 </div>
                             </div>
 
-                            <!-- phân trang -->
-                            <nav aria-label="Page navigation" class="d-flex justify-content-center mt-4">
-                                <ul class="pagination">
-                                    <!-- Nút "Previous" -->
-                                    {% if pagination.has_prev %}
-                                    <li class="page-item">
-                                        <a class="page-link" href="{{ url_for('auth.user_page', page=pagination.prev_num) }}" aria-label="Previous">
-                                            <span aria-hidden="true">&laquo;</span>
-                                        </a>
-                                    </li>
-                                    {% else %}
-                                    <li class="page-item disabled">
-                                        <span class="page-link" aria-label="Previous">
-                                            <span aria-hidden="true">&laquo;</span>
-                                        </span>
-                                    </li>
-                                    {% endif %}
-                                    
-                                    <!-- Các số trang -->
-                                    {% for page in pagination.iter_pages(left_edge=2, right_edge=2, left_current=1, right_current=1) %}
-                                    {% if page %}
-                                        {% if page == pagination.page %}
-                                        <li class="page-item active" aria-current="page">
-                                            <span class="page-link">{{ page }}</span>
-                                        </li>
-                                        {% else %}
-                                        <li class="page-item">
-                                            <a class="page-link" href="{{ url_for('auth.user_page', page=page) }}">{{ page }}</a>
-                                        </li>
-                                        {% endif %}
-                                    {% else %}
-                                    <li class="page-item disabled">
-                                        <span class="page-link">...</span>
-                                    </li>
-                                    {% endif %}
-                                    {% endfor %}
-                                    
-                                    <!-- Nút "Next" -->
-                                    {% if pagination.has_next %}
-                                    <li class="page-item">
-                                        <a class="page-link" href="{{ url_for('auth.user_page', page=pagination.next_num) }}" aria-label="Next">
-                                            <span aria-hidden="true">&raquo;</span>
-                                        </a>
-                                    </li>
-                                    {% else %}
-                                    <li class="page-item disabled">
-                                        <span class="page-link" aria-label="Next">
-                                            <span aria-hidden="true">&raquo;</span>
-                                        </span>
-                                    </li>
-                                    {% endif %}
-                                </ul>
-                            </nav>
+
+
+                            
+                            
                         </div>
   
                     </div>
@@ -265,18 +344,7 @@
                 </div>
                 <div class="modal-body">
                     <form id="editUserForm">
-                        <div class="row">
-                            <!-- User Name -->
-                            <div class="col-md-6 mb-3">
-                                <label for="username" class="form-label">Họ:</label>
-                                <input type="text" id="Username" name="user_name" class="form-control" placeholder="Nhập username" value="{{ current_user.user_name}}">
-                            </div>
-                            <!-- Pass Word -->
-                            <div class="col-md-6 mb-3">
-                                <label for="password" class="form-label">Tên:</label>
-                                <input type="text" id="Password" name="password" class="form-control" placeholder="Nhập password" value="{{ current_user.password }}">
-                            </div>
-                        </div>
+                        
                         <div class="row">
                             <!-- First Name -->
                             <div class="col-md-6 mb-3">
@@ -306,9 +374,9 @@
                             <div class="col-md-6 mb-3">
                                 <label for="gender" class="form-label">Giới Tính:</label>
                                 <select id="gender" name="gender" class="form-select">
-                                    <option value="Male" {% if current_user.user.gender == "Male" %}selected{% endif %}>Nam</option>
-                                    <option value="Female" {% if current_user.user.gender == "Female" %}selected{% endif %}>Nữ</option>
-                                    <option value="Other" {% if current_user.user.gender == "Other" %}selected{% endif %}>Khác</option>
+                                    <option value="Nam" {% if current_user.user.gender == "Nam" %}selected{% endif %}>Nam</option>
+                                    <option value="Nữ" {% if current_user.user.gender == "Nữ" %}selected{% endif %}>Nữ</option>
+                                    <option value="Khác" {% if current_user.user.gender == "Khác" %}selected{% endif %}>Khác</option>
                                 </select>
                             </div>
                             <!-- Birth Date -->
@@ -332,4 +400,50 @@
         </div>
     </div>
 
+
+
+
+
+
+
+
+    <div class="modal fade" id="editUserAccountModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editUserModalLabel">Cập Nhật Thông Tin</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editUserAccountForm">
+                        <div class="row">
+                            <!-- User Name -->
+                            <div class="col-md-6 mb-3">
+                                <label for="username" class="form-label">Tên người dùng:</label>
+                                <input type="text" id="Username" name="user_name" class="form-control" placeholder="Nhập username" value="{{ current_user.user_name}}">
+                            </div>
+                            <!-- Pass Word -->
+                            <div class="col-md-6 mb-3">
+                                <label for="password" class="form-label">Mật khẩu cũ:</label>
+                                <input type="text" id="Password" name="password" class="form-control" placeholder="Nhập password cũ">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="NewPassword" class="form-label">Mật khẩu mới</label>
+                                <input type="text" id="NewPassword" name="new_password" class="form-control" placeholder="Nhập password mới">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="ConfirmNewPassword" class="form-label">Xác nhận mật khẩu mới</label>
+                                <input type="text" id="ConfirmNewPassword" name="confirm_new_password" class="form-control" placeholder="Nhập lại password mới">
+                            </div>
+                        </div>
+                        
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" id="saveAccountChangesButton" class="btn btn-primary">Lưu Thay Đổi</button>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock content %}

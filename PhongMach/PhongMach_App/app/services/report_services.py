@@ -1,15 +1,16 @@
 from sqlalchemy import func, distinct,case
-from app.models import MedicalExam,Bill,Medicine,MedicineUnit,DetailExam,UnitConvert,Unit,Category
+# from sqlalchemy.sql.expression  import coalesce
+from app.models import MedicalExam,Bill,Medicine,MedicineUnit,DetailExam,UnitConvert,Unit,Category,med_category
 from config import Config
 from app.extensions import db
-from datetime import date
+from datetime import date,datetime
 
 def count_patients_in_day(day, month,year):
     
     count = db.session.query(func.count(distinct(MedicalExam.patient_id)))\
         .filter(func.extract('year',MedicalExam.exam_day) == year)\
         .filter(func.extract('month',MedicalExam.exam_day) == month)\
-        .filter(func.extract('day',MedicalExam.exam_day) == day).scalar()
+        .filter(func.extract('day',MedicalExam.exam_day) == day).scalar(    )
     return count
 def count_patients_in_month(year, month):
     """
@@ -48,47 +49,115 @@ def calculate_monthly_revenue(month, year):
     return revenue
 def get_daily_revenue(day, month, year):
     daily_revenue = db.session.query(func.sum(Bill.total))\
-        .join(MedicalExam, Bill.medical_exam_id == MedicalExam.id)\
-        .filter(func.extract('year', MedicalExam.exam_day) == year)\
-        .filter(func.extract('month', MedicalExam.exam_day) == month)\
-        .filter(func.extract('day', MedicalExam.exam_day) == day)\
+        .filter(func.extract('year', Bill.created_date) == year)\
+        .filter(func.extract('month', Bill.created_date) == month)\
+        .filter(func.extract('day', Bill.created_date) == day)\
         .filter(Bill.is_pay == True)\
         .scalar()
     
     return daily_revenue or 0
 
-def get_monthly_revenue( month, year):
+def get_monthly_revenue( month, year=datetime.today().year):
     monthly_revenue = db.session.query(func.sum(Bill.total))\
-        .join(MedicalExam, Bill.medical_exam_id == MedicalExam.id)\
-        .filter(func.extract('year', MedicalExam.exam_day) == year)\
-        .filter(func.extract('month', MedicalExam.exam_day) == month)\
+        .filter(func.extract('year', Bill.created_date) == year)\
+        .filter(func.extract('month', Bill.created_date) == month)\
         .filter(Bill.is_pay == True)\
         .scalar()
     
     return monthly_revenue or 0
 
-def count_medicine_by_category(month, year, category_id):
-   
-    result = db.session.query(
+#quarter/month
+def get_revenue(time,year = datetime.today().year):
+    # Truy vấn doanh thu cho 12 tháng trong năm
+    total_revenue = db.session.query(
+        func.extract(time, Bill.created_date).label(time),
+        func.sum(Bill.total).label('revenue')
+    )\
+    .filter(func.extract('year', Bill.created_date) == year)\
+    .filter(Bill.is_pay == True )\
+    .group_by(func.extract(time, Bill.created_date))\
+    .order_by(func.extract(time, Bill.created_date))\
+    .all()
+    return total_revenue
+
+
+def get_medicine_sold_report(month, year, category_id):
+    
+    result = (
+    db.session.query(
         Medicine.name.label("medicine_name"),
         func.sum(
             case(
-                (UnitConvert.default_unit_id != Unit.id,DetailExam.quantity * UnitConvert.convert_rate),
-                else_=DetailExam.quantity  # Nếu không có quy đổi, giữ nguyên số lượng
+                
+                    (
+                        UnitConvert.default_unit_id != Unit.id,
+                        DetailExam.quantity * UnitConvert.convert_rate,
+                    ),
+                else_=DetailExam.quantity,
             )
-        ).label("total_quantity")
-    ).join(MedicineUnit, DetailExam.medicine_id == MedicineUnit.medicine_id) \
-     .join(UnitConvert, DetailExam.unit_id == UnitConvert.target_unit_id) \
-     .join(Unit, MedicineUnit.unit_id == Unit.id) \
-     .join(Medicine, DetailExam.medicine_id == Medicine.id) \
-     .join(Category, Medicine.categories) \
-     .join(MedicalExam, DetailExam.medical_exam_id == MedicalExam.id) \
-     .join(Bill, MedicalExam.id == Bill.medical_exam_id) \
-     .filter(
-         func.extract("month", MedicalExam.exam_day) == month,
-         func.extract("year", MedicalExam.exam_day) == year,
-         Category.id == category_id,
-         Bill.is_pay == True
-     ).group_by(Medicine.id).all()
+            
+        ).label("total_quantity"),
+    )
+    .outerjoin(DetailExam, DetailExam.medicine_id == Medicine.id)
+    .join(Unit, DetailExam.unit_id == Unit.id)
+    .outerjoin(
+        UnitConvert,
+        (DetailExam.medicine_id == UnitConvert.med_id) &
+        (DetailExam.unit_id == UnitConvert.target_unit_id),
+    )
+    .join(MedicalExam, DetailExam.medical_exam_id == MedicalExam.id)
+    .join(Bill, MedicalExam.id == Bill.medical_exam_id)
+    .join(Category, Medicine.categories)
+    .filter(
+        func.extract("month", MedicalExam.exam_day) == month,
+        func.extract("year", MedicalExam.exam_day) == year,
+        Category.id == category_id,
+        (Bill.is_pay == True) | (Bill.is_pay.is_(None)),
+    )
+    .group_by(Medicine.id).all()
+    )
     
     return result
+
+# lấy số lượng thuốc mội loại thuốc
+def get_medicine_of_category():
+    
+    results = db.session.query(
+        Category.name,
+        func.count(Medicine.id)
+    ).outerjoin(Medicine.categories).group_by(Category.name).all()
+    return results
+
+#lấy số lượng của từng thuốc của 1 loại thuốc
+def get_num_med_of_category(cate_id):
+    medicines = (
+        db.session.query(
+            Medicine.id, 
+            Medicine.name,
+            Unit.name,
+            func.sum(Medicine.inventory).label("total_inventory")
+        )
+        .join(Category.medicines)\
+        .join(MedicineUnit, Medicine.id == MedicineUnit.medicine_id)
+        .join(Unit, Unit.id == MedicineUnit.unit_id)
+        .filter(Category.id == cate_id,
+                MedicineUnit.is_default == True
+                )
+        .group_by(Medicine.id,Unit.name)
+        .all()
+    )
+    return medicines
+# def get_num_med_of_category(cate_id):
+#     medicines = (
+#         db.session.query(
+#             Medicine.id, 
+#             Medicine.name,
+#             func.sum(Medicine.inventory).label("total_inventory")
+#         )
+#         .join(Category.medicines)
+#         .filter(Category.id == cate_id,
+#                 )
+#         .group_by(Medicine.id)
+#         .all()
+#     )
+#     return medicines

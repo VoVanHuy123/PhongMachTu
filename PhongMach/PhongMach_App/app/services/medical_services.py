@@ -1,10 +1,11 @@
-from app.models import Medicine,MedicineUnit, Category,MedicalExam,DetailExam,ExamRegistration,Unit,UnitConvert,Bill,Regulation
+from app.models import Medicine,MedicineUnit, Category,MedicalExam,DetailExam,ExamRegistration,Unit,UnitConvert,Bill,Regulation,Patient,ExamSchedule
 from config import Config
 from app.extensions import db
 import hashlib
 from sqlalchemy.orm import joinedload
 from datetime import datetime
 from flask import jsonify
+from sqlalchemy.sql.expression import func
 
 def get_medicine_list():
     return Medicine.query.all()
@@ -15,9 +16,28 @@ def get_medicine_categories():
 def get_medicines_by_category_query(category_id):
     return Medicine.query.filter(Medicine.categories.any(Category.id == int(category_id)))
 
+def get_num_category():
+    return  Category.query.count()
+def get_num_unit():
+    return Unit.query.count()
+def get_num_category_regulation():
+    regulation = Regulation.query.filter(Regulation.name == "Loại thuốc").first()
+    return regulation.number
+def get_num_unit_regulation():
+    regulation = Regulation.query.filter(Regulation.name == "Loại đơn vị").first()
+    return regulation.number
 def get_exam_fee():
     exam_fee =  Regulation.query.filter_by(name = "Phí Khám").first()
     return exam_fee.number
+def get_num_patient_in_day():
+    num_patient = Regulation.query.filter_by(name = "Số Lượng Bệnh Nhân").first()
+    return num_patient.number
+def get_exam_regis_in_day(day):
+    # Đảm bảo rằng ngày truyền vào đúng định dạng (datetime.date hoặc datetime)
+    return db.session.query(func.count(ExamRegistration.id)) \
+        .join(ExamRegistration.exam_schedule) \
+        .filter(ExamSchedule.date == day) \
+        .scalar()
 def create_a_medical_exam(diagnosis, exam_day,patient_id,doctor_id):
     return MedicalExam(
             diagnosis=diagnosis,
@@ -167,6 +187,14 @@ def get_medical_exams_by_patient_id(patient_id):
 
 def get_medical_exam_by_id(id):
     return MedicalExam.query.filter_by(id=id).first()
+
+def get_medical_exam_by_patient_name_and_day(search_name, selected_day):
+    query = db.session.query(MedicalExam).join(Patient).filter(
+        MedicalExam.exam_day == selected_day,
+        func.concat(Patient.first_name, " ", Patient.last_name).ilike(f"%{search_name}%")
+    )
+    return query
+
 def get_medical_exams_by_day(day):
     return MedicalExam.query.filter_by(exam_day=day).all()
 def get_detail_exam_by_medical_exam_id(medical_exam_id):

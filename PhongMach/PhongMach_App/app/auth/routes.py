@@ -91,13 +91,15 @@ def user_register():
         
     return render_template('auth/register.html', err_msg = err_msg)
 
-@auth.route('/user_page')
+@auth.route('/user_page/', methods = ['GET'])
 def user_page():
     page = request.args.get('page', 1, type=int)  # Lấy trang hiện tại từ URL (mặc định là trang 1)
-    per_page = 5  
-    pagination = get_exam_registration_paginate_by_patient_id(current_user.user.id, page, per_page)
+    per_page = 8 
+    tab = request.args.get('tab','pills-home') 
+    registration_pagination = get_exam_registration_by_patient_id(current_user.user.id).paginate(page=page, per_page=per_page,error_out=False)
+    total_pages = registration_pagination.pages
+    print(f"Total pages: {total_pages}")
 
-    # Lấy dữ liệu phân trang
     exam_registrations = [{
         "id": exam_regis.id,
         "doctor_name": exam_regis.doctor.first_name + " " + exam_regis.doctor.last_name,
@@ -106,9 +108,26 @@ def user_page():
         "watting_status": exam_regis.is_waiting,
         "day": exam_regis.exam_schedule.date.strftime('%d-%m-%Y'),
         "symptom": exam_regis.symptom,
-    } for exam_regis in pagination.items]  # .items chứa các đối tượng trong trang hiện tại
+    } for exam_regis in registration_pagination.items]
 
-    return render_template('auth/user_page.html',exam_registrations=exam_registrations,pagination=pagination)
+    # Lấy dữ liệu Phiếu Khám
+    exam_pagination = MedicalExam.query.filter_by(patient_id=current_user.user.id).paginate(page=page, per_page=per_page,error_out=False)
+    # print(exam_pagination.items)
+    medical_exams = [{
+        "id": medical_exam.id,
+        "doctor_name": medical_exam.doctor.first_name + " " + medical_exam.doctor.last_name,
+        "exam_day": medical_exam.exam_day.strftime('%d-%m-%Y'),
+        "diagnosis": medical_exam.diagnosis,
+    } for medical_exam in exam_pagination.items]
+
+    return render_template(
+        'auth/user_page.html',
+        exam_registrations=exam_registrations,
+        registration_pagination=registration_pagination,
+        medical_exams=medical_exams,
+        exam_pagination=exam_pagination,
+        tab=tab,
+    )
 
 @auth.route('/edit_user',methods=['POST','GET'])
 def edit_user_info():
@@ -134,6 +153,56 @@ def edit_user_info():
         print(f"Error: {e}")
         return jsonify({'success': False, 'message': str(e)}), 500
     
+
+
+@auth.route('/edit_user_account',methods=['POST','GET'])
+def edit_user_account():
+    try: 
+        data =get_user_account_form_data(request)
+        password = str(hashlib.md5((data['password']).strip().encode('utf-8')).hexdigest())
+        if password.__eq__(current_user.password):
+
+            if data['new_password'].strip().__eq__(data['confirm_new_password'].strip()):
+                update_user_account(current_user,data)
+                return jsonify({'success': True, 'message':"cập nhật thành công"}), 200
+            else:
+                return jsonify({'success': False, 'message':"mật khẩu xác nhận không đúng"}),400
+        else:
+            return jsonify({'success': False, 'message': 'Mật khẩu không đúng'}),400
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+@auth.route('/edit_user_phone',methods=['POST','GET'])
+def edit_user_phone():
+    try: 
+        data = request.json  # Lấy dữ liệu JSON gửi từ client
+        phone_data = data.get('phone_data', []) 
+        phone_id_list = []
+        for phone in phone_data:
+            number = PhoneNumber.query.filter_by(number=phone['phone_number']).first() 
+            if number:
+                number.number = phone['phone_number']
+                number.type_number = phone['type_number']  
+                phone_id_list.append(number.id)
+            else:
+                number = PhoneNumber(number=phone['phone_number'], type_number=phone['type_number'] ,user_id=current_user.user.id)
+                db.session.add(number)
+                db.session.flush()
+                phone_id_list.append(number.id)
+        for phone in current_user.user.phone_numbers:
+            if phone.id not in phone_id_list:
+                db.session.delete(phone)
+
+        db.session.commit()
+        return jsonify({'success': True, 'message': "thành công"}), 200  
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+    
+
+
+
 @auth.route('/patient_history',methods=['GET', 'POST'])
 def patient_history():
     # Lấy patient_id từ form hoặc query string

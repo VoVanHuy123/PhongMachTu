@@ -1,85 +1,81 @@
 {% extends "layout/base.html" %}
 
-{% block title %}Phòng Khám Tư{% endblock%}
+{% block title %}Đăng nhập{% endblock %}
 
-{% block content%}
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/login.js') }}"></script>
+{% endblock %}
 
-{% if err_msg%}
-<div class="alert alert-danger">
-  <h3>{{ err_msg }}</h3>
+{% block content %}
+
+{% if err_msg %}
+<div class="alert alert-danger d-">
+  <h3 id="msg-alert">{{ err_msg }}</h3>
 </div>
 {% endif %}
-    
-  <div class="container py-5 ">
-    <div class="row align-items-center">
-      <div class="col-lg-6 mr-auto text-dark">
-        <div class="mb-5">
-          <h3 class="text-dark mb-4">Contact Info</h3>
-          <p class="text-dark">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptatibus blanditiis, perferendis aliquam.</p>
-        </div>
-        <div class="row">
-          <div class="col-md-6">
-            <h3 class="text-dark h5 mb-3">Hà Nội</h3>
-            <ul class="list-unstyled mb-5">
-              <li class="d-flex text-dark mb-2">
-                <span class="mr-3"><span class="icon-map"></span></span> 34 Street Name, City Name Here, United States
-              </li>
-              <li class="d-flex text-dark mb-2"><span class="mr-3"><span class="icon-phone"></span></span> +1 (222) 345 6789</li>
-              <li class="d-flex text-dark"><span class="mr-3"><span class="icon-envelope-o"></span></span> info@mywebsite.com </li>
-            </ul>
-          </div>
-          <div class="col-md-6">
-            <h3 class="text-dark h5 mb-3">TP.Hồ Chí Minh</h3>
-            <ul class="list-unstyled mb-5">
-              <li class="d-flex text-dark mb-2">
-                <span class="mr-3"><span class="icon-map"></span></span> 34 Street Name, City Name Here, United States
-              </li>
-              <li class="d-flex text-dark mb-2"><span class="mr-3"><span class="icon-phone"></span></span> +1 (222) 345 6789</li>
-              <li class="d-flex text-dark"><span class="mr-3"><span class="icon-envelope-o"></span></span> info@mywebsite.com </li>
-            </ul>
-          </div>
-        </div>
+
+<div class="container py-5">
+  <div class="row align-items-center">
+    <div class="col-lg-6 mr-auto text-dark">
+      <div class="mb-5">
+        <h3 class="text-dark mb-4">Đăng Nhập</h3>
+        <p class="text-dark">Chào mừng đến với phòng khám HuyHung. Vui lòng đăng nhập để tiếp tục.</p>
       </div>
-
-      <div class="col-lg-6">
-        <div class="box">
-          <h3 class="heading">Login</h3>
-          <form class="mb-5" method="post" action = "{{url_for('auth.user_login')}}">
-            <div class="row">
-              
-              <div class="col-md-12 form-group">
-                <label for="user-name" class="col-form-label">User Name</label>
-                <input type="text" class="form-control" name="user_name" id="user-name">
-              </div>
-            </div>
-            <div class="row mb-3">
-              <div class="col-md-12 form-group">
-                <label for="password" class="col-form-label">Password</label>
-                <input type="password" class="form-control" name="password" id="password">
-              </div>
-            </div>
-
-              <div class="row">
-                <div class="col-md-6">
-                  <input type="submit" value="Login" class="btn btn-block btn-primary rounded-0 py-2 px-4">
-                  <span class="submitting"></span>
-                </div>
-                <div class="col-md-6">
-                  <a href="{{url_for('auth.user_register')}}" type="button"  class="btn btn-block btn-primary rounded-0 py-2 px-4">
-                    Regiter
-                  </a>
-                  <span class="submitting"></span>
-                </div>
-              </div>
-          </form>
-
-          <div id="form-message-warning mt-4"></div> 
-          <div id="form-message-success">
-            Your message was sent, thank you!
-          </div>
+      <div class="row">
+        <div class="col-md-6">
+          <h3 class="text-dark h5 mb-3">Hà Nội</h3>
+          <ul class="list-unstyled mb-5">
+            <li class="d-flex text-dark mb-2">
+              <span class="mr-3"><span class="icon-map"></span></span> 34 Tên đường, Hà Nội, Việt Nam
+            </li>
+            <li class="d-flex text-dark mb-2"><span class="mr-3"><span class="icon-phone"></span></span> +84 733456789</li>
+            <li class="d-flex text-dark"><span class="mr-3"><span class="icon-envelope-o"></span></span> phongkhamHuyHung@agmail.com </li>
+          </ul>
+        </div>
+        <div class="col-md-6">
+          <h3 class="text-dark h5 mb-3">TP.Hồ Chí Minh</h3>
+          <ul class="list-unstyled mb-5">
+            <li class="d-flex text-dark mb-2">
+              <span class="mr-3"><span class="icon-map"></span></span> Lê Văn Lương, Khu dân cư Lập Phúc, Nhà Bè, TP Hồ Chí Minh
+            </li>
+            <li class="d-flex text-dark mb-2"><span class="mr-3"><span class="icon-phone"></span></span> +84 736197264</li>
+            <li class="d-flex text-dark"><span class="mr-3"><span class="icon-envelope-o"></span></span> phongkhamHuyHung@agmail.com
         </div>
       </div>
     </div>
+
+    <div class="col-lg-6">
+      <div class="box">
+        <h3 class="heading">Đăng Nhập</h3>
+        <form id="loginForm" class="mb-5" method="post" action="{{url_for('auth.user_login')}}">
+          <div class="row">
+            <div class="col-md-12 form-group">
+              <label for="user-name" class="col-form-label">Tên người dùng</label>
+              <input type="text" class="form-control" name="user_name" id="user-name">
+              <small id="user-name-error" class="text-danger"></small>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-md-12 form-group">
+              <label for="password" class="col-form-label">Mật Khẩu</label>
+              <input type="password" class="form-control" name="password" id="password">
+              <small id="password-error" class="text-danger"></small>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <input type="submit" value="Login" class="btn btn-block btn-primary rounded-0 py-2 px-4 w-100">
+            </div>
+            <div class="col-md-6">
+              <a href="{{url_for('auth.user_register')}}" type="button" class="btn btn-block btn-primary rounded-0 py-2 px-4 w-100 d-inline-flex justify-content-center align-items-center ">
+                Register
+              </a>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 </div>
 
 {%endblock%}

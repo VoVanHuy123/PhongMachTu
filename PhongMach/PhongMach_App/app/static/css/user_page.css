@@ -75,7 +75,7 @@
 
 .right-profile-card .nav-pills .nav-link.active,
 .nav-pills .show>.nav-link {
-    color: #fff;
+    color: #2fff00;
     background-color: var(--main-color);
 }
 

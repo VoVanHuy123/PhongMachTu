@@ -17,7 +17,7 @@ doctor_user = Blueprint('doctor_user', __name__, url_prefix='/doctor_user')
 def doctor_user_run():
     
     today = datetime.now()
-    available_days = [(today + timedelta(days=i)).date() for i in range(7)]
+    available_days = [(today + timedelta(days=i)).date() for i in range(-2,7)]
 
     selected_day = request.form.get('exam_day')
 
@@ -35,9 +35,7 @@ def doctor_user_run():
 
 @doctor_user.route('/edit_doctor_info' , methods=['GET', 'POST'])
 def edit_doctor_info():
-    if request.method == 'POST':
-        doctor_info = get_user_form_data(request)
-        doctor_account_info = get_user_account_form_data(request)
+    # if request.method == 'POST':
         try:
             data = get_user_form_data(request)
             update_doctor_user_info(current_user.user, data)
@@ -152,8 +150,6 @@ def add_medicine():
             'id': unit.id,
             'name': unit.name,
         }for unit in med_unit_list]
-        for unit in list_unit:
-            print(unit['id'], unit['name'])
         #lấy quy đổi của unit_id này
         convert_rate = get_unit_convert_rate_by_med_and_unit_id(medicine_id,unit_id)
         if not medicine:
@@ -202,7 +198,7 @@ def create_medical_exam():
     medicines = data.get('medicines', [])
     if not medicines or len(medicines) == 0:
         return jsonify({"message": "Please add at least one medicine."}), 400  
-    print(exam_registration_id)
+
     try:
         
         medical_exam = create_a_medical_exam(
@@ -224,7 +220,7 @@ def create_medical_exam():
         complete_exam_registration(exam_registration_id)
         db.session.commit()
         return jsonify({
-            "message": "Medical exam created successfully.",
+            "message": "Tạo Phiếu Khám Thành Công.",
             "redirect_url": url_for('doctor_user.doctor_user_run')  # Trả URL để frontend xử lý
         }), 200
 
