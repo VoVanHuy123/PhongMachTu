@@ -129,7 +129,7 @@ def user_page():
         tab=tab,
     )
 
-@auth.route('/edit_user',methods=['POST','GET'])
+@auth.route('/api/edit_user',methods=['POST','GET'])
 def edit_user_info():
     try:
         data = get_user_form_data(request)
@@ -155,7 +155,7 @@ def edit_user_info():
     
 
 
-@auth.route('/edit_user_account',methods=['POST','GET'])
+@auth.route('/api/edit_user_account',methods=['POST','GET'])
 def edit_user_account():
     try: 
         data =get_user_account_form_data(request)
@@ -172,7 +172,7 @@ def edit_user_account():
     except Exception as e:
         print(f"Error: {e}")
         return jsonify({'success': False, 'message': str(e)}), 500
-@auth.route('/edit_user_phone',methods=['POST','GET'])
+@auth.route('/api/edit_user_phone',methods=['POST','GET'])
 def edit_user_phone():
     try: 
         data = request.json  # Lấy dữ liệu JSON gửi từ client
@@ -238,7 +238,7 @@ def patient_history():
         end_date=end_date
     )
 
-@auth.route('/patient_exam_details',methods=['GET', 'POST'])
+@auth.route('/api/patient_exam_details',methods=['GET', 'POST'])
 def patient_exam_details():
     data = request.get_json()
     if not data or 'medical_exam_id' not in data:

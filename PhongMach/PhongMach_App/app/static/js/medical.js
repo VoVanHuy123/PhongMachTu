@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const category = categorySelect.value;
 
 
-    fetch(`/doctor_user/search_medicine?query=${query}&category=${category}`)
+    fetch(`/doctor_user/api/search_medicine?query=${query}&category=${category}`)
       .then(response => response.json())
       .then(data => {
         medicineList.innerHTML = ''; // Xóa danh sách cũ
@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     try {
       // Gửi yêu cầu đến backend
-      const response = await fetch('/doctor_user/add_medicine', {
+      const response = await fetch('/doctor_user/api/add_medicine', {
           method: 'POST',
           headers: {
               'Content-Type': 'application/json',
@@ -282,7 +282,7 @@ document.addEventListener('DOMContentLoaded', function () {
     
     if(diagnosis && medicines.length != 0){
       // Gửi dữ liệu đến backend
-      const response = await fetch("/doctor_user/create-medical-exam", {
+      const response = await fetch("/doctor_user/api/create-medical-exam", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",

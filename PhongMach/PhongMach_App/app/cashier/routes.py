@@ -59,7 +59,7 @@ def detail_bill():
     total_in_word=convert_number_to_words(int(total))
     return render_template('cashier/detail_bill.html',medical_exam_info = medical_exam_info,total=total,total_in_word=total_in_word)
 
-@cashier.route('/pay',methods = ['POST'])
+@cashier.route('/api/pay',methods = ['POST'])
 def pay():
     data = request.get_json()
     print(data)

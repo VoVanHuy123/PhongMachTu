@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     async function fetchUserAccount(formData){
     
         try {
-            const response = await fetch('/auth/edit_user_account', {
+            const response = await fetch('/auth/api/edit_user_account', {
                 method: 'POST',
                 body: formData,
             });
@@ -86,7 +86,7 @@ async function fetchUserProfile(){
         
             try {
                 // Gửi dữ liệu qua AJAX bằng fetch
-                const response = await fetch('/auth/edit_user', {
+                const response = await fetch('/auth/api/edit_user', {
                     method: 'POST',
                     body: formData,
                 });
@@ -129,7 +129,7 @@ async function fetchUserPhone() {
 
             try {
                 // Gửi dữ liệu qua AJAX
-                const response = await fetch('/auth/edit_user_phone', {
+                const response = await fetch('/auth/api/edit_user_phone', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -169,7 +169,7 @@ async function fetchDoctorProfile() {
             const formData = new FormData(form);
 
             try {
-                const response = await fetch('/doctor_user/edit_doctor_info', {
+                const response = await fetch('/doctor_user/api/edit_doctor_info', {
                     method: 'POST',
                     body: formData,
                 });
@@ -212,7 +212,7 @@ async function expanExamDetail(){
                 // Gửi yêu cầu để lấy dữ liệu nếu chưa có
                 if (!detailBody.innerHTML.trim()) {
                     try {
-                        const response = await fetch('/auth/patient_exam_details', {
+                        const response = await fetch('/auth/api/patient_exam_details', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ medical_exam_id: medicalExamId })

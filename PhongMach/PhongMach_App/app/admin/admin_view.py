@@ -10,11 +10,12 @@ from ..services.user_services import *
 from ..services.report_services import *
 from datetime import date
 from calendar import monthrange,calendar
+from ..decorators import role_required
 
 
 
 class MedicineView(ModelView):
-    @expose('/new/', methods=['GET', 'POST'])
+    @expose('/api/new/', methods=['GET', 'POST'])
     def create_view(self):
         if request.method == 'POST':
             # Lấy dữ liệu từ JavaScript thông qua JSON
@@ -104,7 +105,7 @@ class MedicineView(ModelView):
         return self.render('admin/edit_medicine.html', medicine=medicine, units=units, categories=categories,medicine_units_list = medicine_units_list)
 
     # Xử lý chỉnh sửa thuốc (POST)
-    @expose('/edit/<int:id>/', methods=['POST'])
+    @expose('/api/edit/<int:id>/', methods=['POST'])
     def edit_medicine(self, id):
         data = request.get_json()
         medicine = Medicine.query.get(id)
@@ -199,6 +200,7 @@ class RegiterView(BaseView):
         return self.render('admin/admin_register.html')
     
 class ReportView(BaseView):
+    
     @expose('/', methods=['GET'])
     def report(self, **kwargs):  # Thêm **kwargs để nhận các tham số bổ sung
         # Nhận giá trị tháng và năm từ yêu cầu (mặc định là tháng 12 năm 2024)
@@ -279,6 +281,7 @@ class ReportView(BaseView):
             }), 500
 
 class MyAdminIndexView(AdminIndexView):
+    @role_required("admin")
     @expose('/')
     def index(self):
         selected_cate = int(request.args.get('category',1))

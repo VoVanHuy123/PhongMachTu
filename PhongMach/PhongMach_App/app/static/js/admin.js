@@ -117,7 +117,7 @@ document.addEventListener("DOMContentLoaded", function () {
     
             // Gửi dữ liệu qua API
             try {
-                const response = await fetch('/admin/medicine/new/', {
+                const response = await fetch('/admin/medicine/api/new/', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data),
@@ -143,7 +143,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const data = getData()
             try {
 
-                const response = await fetch(`/admin/medicine/edit/${data.medId}`, {
+                const response = await fetch(`/admin/medicine/api/edit/${data.medId}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

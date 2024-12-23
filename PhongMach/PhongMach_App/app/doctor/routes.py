@@ -33,7 +33,7 @@ def doctor_user_run():
     return render_template('doctor/doctor_page.html', exam_schedules=exam_schedules,available_days= available_days,selected_day=selected_day)
 
 
-@doctor_user.route('/edit_doctor_info' , methods=['GET', 'POST'])
+@doctor_user.route('/api/edit_doctor_info' , methods=['GET', 'POST'])
 def edit_doctor_info():
     # if request.method == 'POST':
         try:
@@ -112,7 +112,7 @@ def create_medical():
 
 
 
-@doctor_user.route('/search_medicine', methods=['GET'])
+@doctor_user.route('/api/search_medicine', methods=['GET'])
 def search_medicine():
     query = request.args.get('query', '').strip().lower()
     category_id = request.args.get('category', '')
@@ -135,7 +135,7 @@ def search_medicine():
     
     return jsonify(result)
 
-@doctor_user.route('/add_medicine', methods=['POST'])
+@doctor_user.route('/api/add_medicine', methods=['POST'])
 def add_medicine():
     try:
         data = request.json
@@ -174,7 +174,7 @@ def add_medicine():
 
 
 
-@doctor_user.route('/create-medical-exam', methods=['POST'])
+@doctor_user.route('/api/create-medical-exam', methods=['POST'])
 def create_medical_exam():
     
     data = request.get_json()

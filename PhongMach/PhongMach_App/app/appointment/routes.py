@@ -188,7 +188,7 @@ def confirm_appoint():
                     email = [current_user.user.email]
                     print(email)
                     subject = "Đặt lịch khám"
-                    message = f"Bạn đã đặt lịch khám với bác sĩ {doctor.last_name} {doctor.first_name} vào lúc {exam_registration.exam_schedule.exam_time.start_time.strftime("%H:%M")} ngày {exam_day}"
+                    message = f"Bạn đã đặt lịch khám với bác sĩ {doctor.last_name} {doctor.first_name} vào lúc {exam_registration.exam_schedule.exam_time.start_time.strftime('%H:%M')} ngày {exam_day}"
                     # send_email.apply_async(args=[subject, email, message])
                     send_email_in_thread(current_app._get_current_object(),subject, email, message)
                     # Lưu thông báo vào session
